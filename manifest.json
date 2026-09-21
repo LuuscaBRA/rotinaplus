@@ -1,0 +1,22 @@
+{
+  "name": "Rotina+",
+  "short_name": "Rotina+",
+  "description": "Seu companheiro de rotina e bem-estar.",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#121212",
+  "theme_color": "#121212",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "https://api.dicebear.com/7.x/pixel-art/png?seed=RotinaPlus",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "https://api.dicebear.com/7.x/pixel-art/png?seed=RotinaPlus",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
