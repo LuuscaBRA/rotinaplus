@@ -1,33 +1,54 @@
 // Data de Hoje
 const today = new Date().toLocaleDateString('pt-BR');
 
-// Estado Padrão do Jogador
 let player = {
     level: 1, xp: 0, lifecash: 0, streak: 0,
     modoLeve: false, currentTab: 'morning',
     tasksCompleted: [],
     lastLoginDate: today,
-    dailyMissions: null // Vai guardar o sorteio do dia
+    dailyMissions: null 
 };
 
-// Carregar dados salvos
 const savedData = localStorage.getItem('levelup_data_v2');
 if (savedData) {
     player = JSON.parse(savedData);
-    // Se mudou o dia, zera as tarefas e sorteia novas
     if (player.lastLoginDate !== today) {
         player.lastLoginDate = today;
         player.tasksCompleted = [];
-        player.dailyMissions = null; // Força novo sorteio
-        // Lógica de sequência (streak) pode ser refinada no futuro
+        player.dailyMissions = null; 
     }
+}
+
+// ==========================================
+// EFEITOS SONOROS (WEB AUDIO API)
+// ==========================================
+let audioCtx;
+function playDing() {
+    if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    }
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+    
+    const oscillator = audioCtx.createOscillator();
+    const gainNode = audioCtx.createGain();
+    
+    oscillator.type = 'sine'; // Som suave
+    oscillator.frequency.setValueAtTime(880, audioCtx.currentTime); // Nota lá (A5)
+    oscillator.frequency.exponentialRampToValueAtTime(1760, audioCtx.currentTime + 0.1); // Desliza para A6
+    
+    gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime);
+    gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.3); // Fade out rápido
+    
+    oscillator.connect(gainNode);
+    gainNode.connect(audioCtx.destination);
+    
+    oscillator.start();
+    oscillator.stop(audioCtx.currentTime + 0.3);
 }
 
 // ==========================================
 // BANCO DE MISSÕES
 // ==========================================
-
-// 7 Missões Fixas (Essenciais) - 3 Manhã, 2 Tarde, 2 Noite
 const essentialMissions = {
     morning: [
         { id: "e_m1", title: "Levantar da cama", category: "essencial", xp: 10, coin: 2, hard: false },
@@ -44,7 +65,6 @@ const essentialMissions = {
     ]
 };
 
-// Missões Aleatórias - O sistema sorteia algumas destas para preencher o dia
 const randomPool = {
     morning: [
         { id: "r_m1", title: "Arrumar a cama", category: "ambiente", xp: 10, coin: 5, hard: false },
@@ -61,15 +81,14 @@ const randomPool = {
         { id: "r_a5", title: "Resolver pendência chata", category: "organização", xp: 30, coin: 15, hard: true }
     ],
     evening: [
-        { id: "r_n1", title: "Desconectar do celular 1h antes de dormir", category: "mente", xp: 20, coin: 10, hard: true },
-        { id: "r_n2", title: "Assistir um filme ou série", category: "lazer", xp: 15, coin: 5, hard: false },
+        { id: "r_n1", title: "Desconectar do ecrã 1h antes de dormir", category: "mente", xp: 20, coin: 10, hard: true },
+        { id: "r_n2", title: "Assistir a um filme ou série", category: "lazer", xp: 15, coin: 5, hard: false },
         { id: "r_n3", title: "Arrumar a roupa de amanhã", category: "organização", xp: 10, coin: 5, hard: false },
         { id: "r_n4", title: "Skincare / Cuidado pessoal", category: "corpo", xp: 15, coin: 5, hard: false },
         { id: "r_n5", title: "Conversar com alguém", category: "social", xp: 20, coin: 10, hard: false }
     ]
 };
 
-// Itens da Loja
 const storeItems = [
     { id: "s1", name: "Escolher o jantar", desc: "Você decide o que comer hoje", cost: 50 },
     { id: "s2", name: "Pequeno mimo", desc: "Comprar um doce ou algo pequeno", cost: 100 },
@@ -86,17 +105,11 @@ const achievements = [
     { id: "ac5", icon: "🆙", title: "Subindo de nível", req: 50 }
 ];
 
-// ==========================================
-// FUNÇÕES DO SISTEMA
-// ==========================================
-
-// Sorteia N missões de um array
 function getRandomMissions(array, count) {
     const shuffled = [...array].sort(() => 0.5 - Math.random());
     return shuffled.slice(0, count);
 }
 
-// Gera as missões do dia (se ainda não existirem)
 function generateDailyMissions() {
     if (!player.dailyMissions) {
         player.dailyMissions = {
@@ -128,12 +141,11 @@ function updateUI() {
     document.getElementById('xp-next').innerText = nextXP;
     document.getElementById('lifecash').innerText = player.lifecash;
     document.getElementById('streak').innerText = player.streak;
-    document.getElementById('modal-saldo').innerText = player.lifecash; // Saldo da loja
+    document.getElementById('modal-saldo').innerText = player.lifecash;
 
     const percentage = Math.min((player.xp / nextXP) * 100, 100);
     document.getElementById('xp-fill').style.width = `${percentage}%`;
 
-    // Atualiza Total de Missões da interface principal
     let totalM = 0;
     Object.values(player.dailyMissions).forEach(arr => totalM += arr.length);
     
@@ -152,12 +164,26 @@ function toggleTask(id, xp, coin) {
         player.tasksCompleted.push(id);
         player.xp += xp;
         player.lifecash += coin;
+        
+        // Toca o som gratificante
+        playDing();
 
         const nextXP = player.level * 100;
         if (player.xp >= nextXP) {
             player.xp -= nextXP;
             player.level++;
-            alert(`🎉 Você subiu para o Nível ${player.level}!`);
+            
+            // Dispara a chuva de confetes
+            confetti({
+                particleCount: 150,
+                spread: 80,
+                origin: { y: 0.6 } // Começa um pouco abaixo do topo
+            });
+
+            // Atraso sutil para garantir que a animação é vista antes do aviso
+            setTimeout(() => {
+                alert(`🎉 Magnífico! Subiu para o Nível ${player.level}!`);
+            }, 600);
         }
     } else {
         player.tasksCompleted.splice(index, 1);
@@ -174,7 +200,6 @@ function renderMissions() {
 
     currentMissions.forEach(m => {
         const isDone = player.tasksCompleted.includes(m.id);
-        // Se a categoria NÃO for essencial, recebe classe "nao-essencial" para poder esconder no modo difícil
         const isEssential = m.category === "essencial";
         const cardClass = `mission-card ${isDone ? 'completed' : ''} ${!isEssential ? 'nao-essencial' : ''}`;
         
@@ -197,7 +222,6 @@ function renderMissions() {
 function renderAchievements() {
     const container = document.getElementById('achievements-container');
     container.innerHTML = '';
-    // Conquistas baseadas no total de tarefas da vida toda
     const totalDoneEver = parseInt(localStorage.getItem('total_tasks_ever') || "0") + player.tasksCompleted.length;
     
     achievements.forEach(ach => {
@@ -221,7 +245,6 @@ function switchTab(tabId) {
     renderMissions();
 }
 
-// Dia Difícil - Esconde tudo que não for "Essencial"
 function toggleModoLeve() {
     player.modoLeve = !player.modoLeve;
     const btn = document.getElementById('btn-modo-leve');
@@ -241,10 +264,6 @@ function selectMood(btn) {
     document.querySelectorAll('.mood-btn').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
 }
-
-// ==========================================
-// LOJA DE RECOMPENSAS
-// ==========================================
 
 function abrirLoja() {
     document.getElementById('loja-modal').classList.add('active');
@@ -280,15 +299,18 @@ function comprarItem(custo, nome) {
     if (player.lifecash >= custo) {
         if (confirm(`Deseja resgatar "${nome}" por ${custo} moedas?`)) {
             player.lifecash -= custo;
+            
+            // Pequena celebração ao comprar um item
+            confetti({ particleCount: 50, spread: 40, origin: { y: 0.8 } });
+            
             updateUI();
-            alert(`🎉 Recompensa Resgatada: ${nome}! Aproveite, você mereceu.`);
+            alert(`🎉 Recompensa Resgatada: ${nome}! Aproveite, bem merecido.`);
         }
     } else {
-        alert("Ops! Você ainda não tem moedas suficientes para essa recompensa. Continue completando missões!");
+        alert("Ainda não tem moedas suficientes para esta recompensa.");
     }
 }
 
-// Inicializar Tudo
 document.getElementById('current-date').innerText = today;
 generateDailyMissions();
 updateUI();
