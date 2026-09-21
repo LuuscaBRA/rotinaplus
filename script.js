@@ -30,7 +30,7 @@ const loginScreen = document.getElementById('login-screen');
 const mainApp = document.getElementById('main-app');
 const loginMsg = document.getElementById('login-msg');
 
-let modoAtualAuth = 'login'; // 'login' ou 'register'
+let modoAtualAuth = 'login'; 
 
 function setModoAuth(modo) {
     modoAtualAuth = modo;
@@ -57,6 +57,36 @@ async function processarAuth() {
     }
 }
 
+// === NOVO SISTEMA: BUSCAR MENSAGEM DO DIA ===
+async function buscarMensagemDoDia() {
+    const quoteText = document.getElementById('daily-quote-text');
+    if(!quoteText) return;
+
+    try {
+        // O código tenta ler um arquivo chamado 'frases.json' hospedado no seu próprio GitHub.
+        // Como ele ainda não existe, ele vai cair automaticamente no bloco "catch" abaixo.
+        const response = await fetch('frases.json');
+        if(!response.ok) throw new Error("Sem arquivo online");
+        const frasesOnline = await response.json();
+        const frase = frasesOnline[Math.floor(Math.random() * frasesOnline.length)];
+        quoteText.innerText = `"${frase}"`;
+    } catch (e) {
+        // Frases de segurança (ativas até você criar um arquivo online)
+        const frases = [
+            "Um passo de cada vez. Você consegue.",
+            "Não precisa ser perfeito, só precisa ser o seu melhor hoje.",
+            "Respire fundo. O dia de hoje é uma nova oportunidade.",
+            "Pequenos progressos diários levam a resultados incríveis.",
+            "Seja gentil com a sua própria mente hoje.",
+            "Descansar também é uma forma de produtividade.",
+            "Você é maior do que a sua ansiedade.",
+            "Só precisamos vencer o dia de hoje."
+        ];
+        const frase = frases[Math.floor(Math.random() * frases.length)];
+        quoteText.innerText = `"${frase}"`;
+    }
+}
+
 onAuthStateChanged(auth, async (user) => {
     if (user) {
         const docRef = doc(db, "users", user.uid);
@@ -78,6 +108,7 @@ onAuthStateChanged(auth, async (user) => {
         mainApp.style.display = 'block';
         document.getElementById('current-date').innerText = today;
         generateDailyMissions();
+        buscarMensagemDoDia(); // Chama a frase assim que entra
         updateUI();
     } else {
         loginScreen.style.display = 'flex';
