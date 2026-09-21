@@ -19,11 +19,11 @@ body { background-color: #000000; color: #ffffff; display: flex; justify-content
 .section-title { font-size: 1rem; font-weight: bold; margin-bottom: 12px; }
 .mood-grid { display: flex; justify-content: space-between; margin-bottom: 25px; }
 .mood-btn { background-color: #1c1c1e; border: 2px solid transparent; border-radius: 12px; width: 55px; height: 55px; font-size: 1.8rem; cursor: pointer; transition: 0.2s; display: flex; align-items: center; justify-content: center; }
-.mood-btn.active { border-color: #a3e6b5; background-color: #2a332c; }
+.mood-btn.active { border-color: #a3e6b5; background-color: #2a332c; transform: scale(1.1); }
 
 .warning-banner { background-color: #2a2015; border: 1px solid #4a3520; color: #e8a851; border-radius: 12px; padding: 15px; font-size: 0.85rem; line-height: 1.4; margin-bottom: 20px; }
 .action-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 25px; }
-.action-btn { background-color: #1c1c1e; color: #fff; border: none; padding: 15px; border-radius: 12px; font-weight: 600; font-size: 0.9rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; }
+.action-btn { background-color: #1c1c1e; color: #fff; border: none; padding: 12px; border-radius: 12px; font-weight: 600; font-size: 0.9rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; }
 
 .tabs-container { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 15px; }
 .tab { background-color: #1c1c1e; color: #8e8e93; border: none; padding: 12px 5px; border-radius: 12px; font-weight: 600; font-size: 0.85rem; cursor: pointer; transition: 0.2s; }
@@ -71,6 +71,13 @@ body { background-color: #000000; color: #ffffff; display: flex; justify-content
 .loja-info p { font-size: 0.75rem; color: #8e8e93; }
 .btn-comprar { background-color: #4a4a4c; color: #ffd60a; font-weight: bold; border: none; padding: 10px 15px; border-radius: 8px; cursor: pointer; transition: 0.2s; }
 .btn-comprar.pode-comprar { background-color: #2a2015; border: 1px solid #e8a851; }
+.btn-usar { background-color: #a3e6b5; color: #000; font-weight: bold; border: none; padding: 10px 15px; border-radius: 8px; cursor: pointer; }
+
+/* CARTÃO DE HISTÓRICO DO DIÁRIO */
+.historico-card { display: flex; background: #2c2c2e; padding: 15px; border-radius: 12px; align-items: center; justify-content: space-between; }
+.historico-data { font-size: 0.85rem; color: #8e8e93; margin-bottom: 4px; }
+.historico-resumo { font-size: 0.9rem; font-weight: bold; }
+.historico-emoji { font-size: 2rem; }
 
 .config-section-title { font-size: 1.05rem; margin-bottom: 15px; color: #a3e6b5; border-bottom: 1px solid #333; padding-bottom: 5px; margin-top: 10px; }
 .form-group { margin-bottom: 10px; }
