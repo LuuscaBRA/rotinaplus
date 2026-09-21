@@ -50,6 +50,12 @@
             </div>
         </header>
 
+        <!-- NOVO QUADRINHO DE MOTIVAÇÃO -->
+        <div class="daily-quote-box">
+            <span class="quote-icon">💡</span>
+            <p id="daily-quote-text">A procurar uma mensagem para si...</p>
+        </div>
+
         <section class="level-card">
             <div class="level-header">
                 <div>
@@ -102,7 +108,7 @@
             <div class="achievements-list" id="achievements-container"></div>
         </section>
 
-        <footer class="app-footer">O seu objetivo não é fazer tudo. É continuar a cuidar de si.</footer>
+        <footer class="app-footer">Com Carinho, por Luusca</footer>
     </div>
 
     <!-- MODAIS DA APLICAÇÃO -->
@@ -135,13 +141,5 @@
     <!-- SCRIPTS -->
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <script type="module" src="script.js"></script>
-    
-    <script>
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('sw.js').then(reg => console.log('PWA OK!')).catch(err => console.log('Erro PWA:', err));
-            });
-        }
-    </script>
 </body>
 </html>
