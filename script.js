@@ -6,12 +6,14 @@ let player = {
     tasksCompleted: [],
     lastLoginDate: today,
     dailyMissions: null,
-    customMissions: [] // NOVO: Guarda as missões criadas pelo usuário
+    customMissions: [], 
+    customRewards: [] // NOVO: Guarda as recompensas criadas
 };
 
 const savedData = localStorage.getItem('levelup_data_v2');
 if (savedData) {
-    player = { ...player, ...JSON.parse(savedData) }; // Garante que customMissions exista
+    // Mescla garantindo que os novos arrays existam
+    player = { customMissions: [], customRewards: [], ...JSON.parse(savedData) }; 
     if (player.lastLoginDate !== today) {
         player.lastLoginDate = today;
         player.tasksCompleted = [];
@@ -37,7 +39,7 @@ function playDing() {
     oscillator.stop(audioCtx.currentTime + 0.3);
 }
 
-// BANCO DE MISSÕES PADRÕES
+// MISSÕES PADRÕES
 const essentialMissions = {
     morning: [
         { id: "e_m1", title: "Levantar da cama", category: "essencial", xp: 10, coin: 2, hard: false },
@@ -54,7 +56,6 @@ const essentialMissions = {
     ]
 };
 
-// Adicionados Estudos e Exercícios no Sorteio Padrão!
 const randomPool = {
     morning: [
         { id: "r_m1", title: "Arrumar a cama", category: "ambiente", xp: 10, coin: 5, hard: false },
@@ -65,8 +66,8 @@ const randomPool = {
     afternoon: [
         { id: "r_a1", title: "Focar na missão principal", category: "trabalho/estudo", xp: 50, coin: 20, hard: true },
         { id: "r_a2", title: "Limpar a mesa de trabalho", category: "ambiente", xp: 15, coin: 5, hard: false },
-        { id: "r_a3", title: "Estudar ou ler um artigo da área", category: "mente", xp: 30, coin: 15, hard: true }, // ESTUDO
-        { id: "r_a4", title: "Treino / Exercício Físico", category: "corpo", xp: 35, coin: 15, hard: true } // EXERCÍCIO
+        { id: "r_a3", title: "Estudar ou ler um artigo da área", category: "mente", xp: 30, coin: 15, hard: true },
+        { id: "r_a4", title: "Treino / Exercício Físico", category: "corpo", xp: 35, coin: 15, hard: true }
     ],
     evening: [
         { id: "r_n1", title: "Desconectar do ecrã 1h antes de dormir", category: "mente", xp: 20, coin: 10, hard: true },
@@ -76,8 +77,9 @@ const randomPool = {
     ]
 };
 
-const storeItems = [
-    { id: "s1", name: "Escolher o jantar", desc: "Você decide o que comer hoje", cost: 50 },
+// RECOMPENSAS PADRÕES
+const defaultStoreItems = [
+    { id: "s1", name: "Escolher seu jantar favorito", desc: "Você decide o que comer hoje", cost: 50 },
     { id: "s2", name: "Pequeno mimo", desc: "Comprar um doce ou algo pequeno", cost: 100 },
     { id: "s3", name: "Pedir comida", desc: "Pedir um delivery especial", cost: 150 },
     { id: "s4", name: "Comprar algo desejado", desc: "Aquele item que estava no carrinho", cost: 250 },
@@ -97,11 +99,8 @@ function getRandomMissions(array, count) {
     return shuffled.slice(0, count);
 }
 
-// Mescla as missões Padrão com as Personalizadas do usuário
 function generateDailyMissions() {
     if (!player.dailyMissions) {
-        
-        // Filtra as personalizadas do usuário por turno e tipo
         const getCustomEss = (turn) => player.customMissions.filter(m => m.type === 'essencial' && m.turn === turn).map(m => ({...m, category: 'essencial', xp: 15, coin: 5, hard: false}));
         const getCustomRand = (turn) => player.customMissions.filter(m => m.type === 'aleatoria' && m.turn === turn).map(m => ({...m, category: 'alternativa', xp: 25, coin: 10, hard: true}));
 
@@ -246,22 +245,31 @@ function selectMood(btn) {
     btn.classList.add('active');
 }
 
-// LOJA
+// ==========================================
+// LOJA E RECOMPENSAS
+// ==========================================
+
 function abrirLoja() { document.getElementById('loja-modal').classList.add('active'); }
 function fecharLoja() { document.getElementById('loja-modal').classList.remove('active'); }
+
 function renderStore() {
     const container = document.getElementById('loja-lista');
     container.innerHTML = '';
-    storeItems.forEach(item => {
+    
+    // Junta os itens padrões com os criados pelo usuário
+    const allStoreItems = [...defaultStoreItems, ...player.customRewards];
+
+    allStoreItems.forEach(item => {
         const btnClass = player.lifecash >= item.cost ? "btn-comprar pode-comprar" : "btn-comprar";
         container.innerHTML += `
             <div class="loja-item">
-                <div class="loja-info"><h3>${item.name}</h3><p>${item.desc}</p></div>
+                <div class="loja-info"><h3>${item.name}</h3><p>${item.desc || 'Recompensa'}</p></div>
                 <button class="${btnClass}" onclick="comprarItem(${item.cost}, '${item.name}')">${item.cost} 🪙</button>
             </div>
         `;
     });
 }
+
 function comprarItem(custo, nome) {
     if (player.lifecash >= custo) {
         if (confirm(`Deseja resgatar "${nome}" por ${custo} moedas?`)) {
@@ -273,7 +281,10 @@ function comprarItem(custo, nome) {
     } else { alert("Ainda não tem moedas suficientes para esta recompensa."); }
 }
 
-// SISTEMA DE MISSÕES CUSTOMIZADAS
+// ==========================================
+// CONFIGURAÇÕES (CUSTOMIZAÇÃO)
+// ==========================================
+
 function abrirConfig() { 
     document.getElementById('config-modal').classList.add('active'); 
     renderConfigList();
@@ -284,68 +295,97 @@ function fecharConfig() {
 }
 
 function renderConfigList() {
-    const container = document.getElementById('lista-missoes-custom');
-    container.innerHTML = '';
+    // 1. Renderiza Missões
+    const listaMissoes = document.getElementById('lista-missoes-custom');
+    listaMissoes.innerHTML = '';
     
     if(!player.customMissions || player.customMissions.length === 0) {
-        container.innerHTML = '<p style="color:#8e8e93; font-size:0.8rem;">Nenhuma missão personalizada ainda.</p>';
-        return;
+        listaMissoes.innerHTML = '<p style="color:#8e8e93; font-size:0.8rem;">Nenhuma missão personalizada.</p>';
+    } else {
+        player.customMissions.forEach(m => {
+            const turnoStr = m.turn === 'morning' ? 'Manhã' : m.turn === 'afternoon' ? 'Tarde' : 'Noite';
+            const tipoStr = m.type === 'essencial' ? '⭐ Essencial' : '🎲 Alternativa';
+            listaMissoes.innerHTML += `
+                <div class="custom-item">
+                    <div class="custom-info">
+                        <h4>${m.title}</h4><span>${tipoStr} • ${turnoStr}</span>
+                    </div>
+                    <button class="btn-del" onclick="removerMissaoCustomizada('${m.id}')" title="Excluir">X</button>
+                </div>
+            `;
+        });
     }
 
-    player.customMissions.forEach(m => {
-        const turnoStr = m.turn === 'morning' ? 'Manhã' : m.turn === 'afternoon' ? 'Tarde' : 'Noite';
-        const tipoStr = m.type === 'essencial' ? '⭐ Essencial' : '🎲 Alternativa';
-        container.innerHTML += `
-            <div class="custom-mission-item">
-                <div class="custom-mission-info">
-                    <h4>${m.title}</h4>
-                    <span>${tipoStr} • ${turnoStr}</span>
+    // 2. Renderiza Recompensas
+    const listaRecs = document.getElementById('lista-recompensas-custom');
+    listaRecs.innerHTML = '';
+
+    if(!player.customRewards || player.customRewards.length === 0) {
+        listaRecs.innerHTML = '<p style="color:#8e8e93; font-size:0.8rem;">Nenhuma recompensa personalizada.</p>';
+    } else {
+        player.customRewards.forEach(r => {
+            listaRecs.innerHTML += `
+                <div class="custom-item">
+                    <div class="custom-info">
+                        <h4>${r.name}</h4><span>Custo: ${r.cost} 🪙</span>
+                    </div>
+                    <button class="btn-del" onclick="removerRecompensaCustomizada('${r.id}')" title="Excluir">X</button>
                 </div>
-                <button class="btn-del" onclick="removerMissaoCustomizada('${m.id}')" title="Excluir">X</button>
-            </div>
-        `;
-    });
+            `;
+        });
+    }
 }
 
+// Funções de Missão Customizada
 function adicionarMissaoCustomizada() {
-    const inputNome = document.getElementById('nova-missao-nome');
-    const nome = inputNome.value.trim();
+    const nome = document.getElementById('nova-missao-nome').value.trim();
     const tipo = document.getElementById('nova-missao-tipo').value;
     const turno = document.getElementById('nova-missao-turno').value;
 
     if (!nome) return alert("Digite o nome da missão!");
 
-    const novaMissao = {
-        id: 'c_' + Date.now(),
-        title: nome,
-        type: tipo,
-        turn: turno
-    };
-
+    const novaMissao = { id: 'cm_' + Date.now(), title: nome, type: tipo, turn: turno };
     player.customMissions.push(novaMissao);
     
-    // Se for essencial, já insere na lista de hoje imediatamente para o utilizador ver
     if (tipo === 'essencial') {
-        player.dailyMissions[turno].push({
-            ...novaMissao, category: 'essencial', xp: 15, coin: 5, hard: false
-        });
+        player.dailyMissions[turno].push({...novaMissao, category: 'essencial', xp: 15, coin: 5, hard: false});
     }
 
-    inputNome.value = '';
+    document.getElementById('nova-missao-nome').value = '';
     updateUI();
     renderConfigList();
-    alert("Missão adicionada com sucesso!");
 }
 
 function removerMissaoCustomizada(id) {
-    if(confirm("Tem certeza que deseja apagar essa missão personalizada?")) {
+    if(confirm("Deseja apagar essa missão personalizada?")) {
         player.customMissions = player.customMissions.filter(m => m.id !== id);
-        
-        // Remove do dia atual caso ela não tenha sido concluída ainda
         Object.keys(player.dailyMissions).forEach(turno => {
             player.dailyMissions[turno] = player.dailyMissions[turno].filter(m => m.id !== id);
         });
-        
+        updateUI();
+        renderConfigList();
+    }
+}
+
+// Funções de Recompensa Customizada
+function adicionarRecompensaCustomizada() {
+    const nome = document.getElementById('nova-recompensa-nome').value.trim();
+    const custo = parseInt(document.getElementById('nova-recompensa-custo').value);
+
+    if (!nome || isNaN(custo) || custo <= 0) return alert("Preencha um nome e um custo válido (apenas números)!");
+
+    const novaRec = { id: 'cr_' + Date.now(), name: nome, desc: "Personalizada", cost: custo };
+    player.customRewards.push(novaRec);
+    
+    document.getElementById('nova-recompensa-nome').value = '';
+    document.getElementById('nova-recompensa-custo').value = '';
+    updateUI();
+    renderConfigList();
+}
+
+function removerRecompensaCustomizada(id) {
+    if(confirm("Deseja apagar essa recompensa da sua loja?")) {
+        player.customRewards = player.customRewards.filter(r => r.id !== id);
         updateUI();
         renderConfigList();
     }
