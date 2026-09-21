@@ -1,17 +1,8 @@
-* {
-    margin: 0; padding: 0; box-sizing: border-box;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-}
-
+* { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
 body { background-color: #000000; color: #ffffff; display: flex; justify-content: center; }
-
-.app-container {
-    width: 100%; max-width: 400px; background-color: #121212;
-    min-height: 100vh; padding: 20px; padding-bottom: 40px; position: relative;
-}
+.app-container { width: 100%; max-width: 400px; background-color: #121212; min-height: 100vh; padding: 20px; padding-bottom: 40px; position: relative; }
 
 .top-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; font-size: 0.85rem; color: #8e8e93; font-weight: 500; }
-
 .level-card { background-color: #1c1c1e; border-radius: 20px; padding: 20px; margin-bottom: 25px; }
 .level-header { display: flex; justify-content: space-between; align-items: flex-start; }
 .level-title { font-size: 1.8rem; font-weight: bold; margin-bottom: 5px; }
@@ -19,7 +10,6 @@ body { background-color: #000000; color: #ffffff; display: flex; justify-content
 .xp-text { font-size: 0.8rem; color: #8e8e93; margin-bottom: 8px; }
 .xp-bar { width: 100%; height: 8px; background-color: #2c2c2e; border-radius: 4px; overflow: hidden; margin-bottom: 20px; }
 .xp-fill { height: 100%; background-color: #a3e6b5; width: 0%; transition: width 0.3s ease; }
-
 .stats-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
 .stat-box { background-color: #2c2c2e; border-radius: 12px; padding: 12px 5px; text-align: center; }
 .stat-value { font-size: 1rem; font-weight: bold; margin-bottom: 3px; }
@@ -31,7 +21,6 @@ body { background-color: #000000; color: #ffffff; display: flex; justify-content
 .mood-btn.active { border-color: #a3e6b5; background-color: #2a332c; }
 
 .warning-banner { background-color: #2a2015; border: 1px solid #4a3520; color: #e8a851; border-radius: 12px; padding: 15px; font-size: 0.85rem; line-height: 1.4; margin-bottom: 20px; }
-
 .action-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 25px; }
 .action-btn { background-color: #1c1c1e; color: #fff; border: none; padding: 15px; border-radius: 12px; font-weight: 600; font-size: 0.9rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; }
 
@@ -61,21 +50,19 @@ body { background-color: #000000; color: #ffffff; display: flex; justify-content
 .ach-title { font-size: 0.95rem; font-weight: bold; margin-bottom: 2px; color: #fff;}
 .ach-status { font-size: 0.75rem; color: #8e8e93; }
 .ach-card.unlocked .ach-status { color: #a3e6b5; }
-
 .app-footer { text-align: center; font-size: 0.75rem; color: #8e8e93; padding: 20px 0; }
 
-/* ESTADO DIA DIFÍCIL (Esconde não-essenciais) */
 .modo-leve-ativo .mission-card.nao-essencial { display: none; }
 
-/* MODAL DA LOJA */
+/* MODAIS E FORMULÁRIOS */
 .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.8); z-index: 100; justify-content: center; align-items: flex-end; }
 .modal.active { display: flex; }
-.modal-content { background-color: #1c1c1e; width: 100%; max-width: 400px; border-radius: 24px 24px 0 0; padding: 25px; animation: slideUp 0.3s ease; max-height: 80vh; overflow-y: auto; }
+.modal-content { background-color: #1c1c1e; width: 100%; max-width: 400px; border-radius: 24px 24px 0 0; padding: 25px; animation: slideUp 0.3s ease; max-height: 85vh; overflow-y: auto; }
 @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
 .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
 .modal-header h2 { font-size: 1.4rem; color: #fff; }
 .close-btn { background: none; border: none; color: #8e8e93; font-size: 2rem; cursor: pointer; }
-.saldo-loja { font-size: 1rem; color: #8e8e93; margin-bottom: 20px; border-bottom: 1px solid #333; padding-bottom: 15px; }
+.saldo-loja { font-size: 0.9rem; color: #8e8e93; margin-bottom: 20px; border-bottom: 1px solid #333; padding-bottom: 15px; }
 
 .loja-lista { display: flex; flex-direction: column; gap: 12px; }
 .loja-item { background-color: #2c2c2e; padding: 15px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; }
@@ -83,3 +70,13 @@ body { background-color: #000000; color: #ffffff; display: flex; justify-content
 .loja-info p { font-size: 0.75rem; color: #8e8e93; }
 .btn-comprar { background-color: #4a4a4c; color: #ffd60a; font-weight: bold; border: none; padding: 10px 15px; border-radius: 8px; cursor: pointer; transition: 0.2s; }
 .btn-comprar.pode-comprar { background-color: #2a2015; border: 1px solid #e8a851; }
+
+.form-group { margin-bottom: 10px; }
+.form-group input { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #333; background: #2c2c2e; color: #fff; }
+.form-row { display: flex; gap: 10px; margin-bottom: 10px; }
+.form-row select { flex: 1; padding: 12px; border-radius: 8px; border: 1px solid #333; background: #2c2c2e; color: #fff; }
+
+.custom-mission-item { display:flex; justify-content:space-between; background: #2c2c2e; padding: 12px; border-radius: 8px; align-items:center;}
+.custom-mission-info h4 { font-size: 0.9rem; margin-bottom:2px;}
+.custom-mission-info span { font-size: 0.75rem; color: #8e8e93; }
+.btn-del { background: #3a2222; color: #ff4444; font-weight: bold; border: 1px solid #ff4444; border-radius: 6px; padding: 6px 12px; cursor: pointer; }
