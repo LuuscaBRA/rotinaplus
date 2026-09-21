@@ -44,14 +44,15 @@
             </div>
         </section>
 
+        <!-- COMO VOCÊ ESTÁ HOJE? (Agora grava o humor) -->
         <section class="mood-section">
             <h2 class="section-title">Como você está hoje?</h2>
             <div class="mood-grid">
-                <button class="mood-btn" onclick="selectMood(this)">😁</button>
-                <button class="mood-btn" onclick="selectMood(this)">🙂</button>
-                <button class="mood-btn" onclick="selectMood(this)">😐</button>
-                <button class="mood-btn" onclick="selectMood(this)">😔</button>
-                <button class="mood-btn" onclick="selectMood(this)">😢</button>
+                <button class="mood-btn" id="mood-😁" onclick="selectMood('😁')">😁</button>
+                <button class="mood-btn" id="mood-🙂" onclick="selectMood('🙂')">🙂</button>
+                <button class="mood-btn" id="mood-😐" onclick="selectMood('😐')">😐</button>
+                <button class="mood-btn" id="mood-😔" onclick="selectMood('😔')">😔</button>
+                <button class="mood-btn" id="mood-😢" onclick="selectMood('😢')">😢</button>
             </div>
         </section>
 
@@ -59,13 +60,12 @@
             🧡 <strong>Sem cobrança.</strong> Em um dia difícil, ative o modo abaixo. Ele reduz as missões e foca apenas na sua sobrevivência básica hoje.
         </div>
 
+        <!-- 4 BOTÕES PRINCIPAIS -->
         <div class="action-grid">
-            <button class="action-btn" id="btn-modo-leve" onclick="toggleModoLeve()">
-                🔴 Ativar dia difícil
-            </button>
-            <button class="action-btn" onclick="abrirLoja()">
-                🎁 Recompensas
-            </button>
+            <button class="action-btn" id="btn-modo-leve" onclick="toggleModoLeve()">🔴 Dia difícil</button>
+            <button class="action-btn" onclick="abrirLoja()">🎁 Loja</button>
+            <button class="action-btn" onclick="abrirMochila()">🎒 Mochila</button>
+            <button class="action-btn" onclick="abrirDiario()">📊 Diário</button>
         </div>
 
         <div class="tabs-container">
@@ -86,7 +86,7 @@
         </footer>
     </div>
 
-    <!-- MODAL DA LOJA DE RECOMPENSAS -->
+    <!-- MODAL DA LOJA -->
     <div id="loja-modal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
@@ -94,7 +94,32 @@
                 <button class="close-btn" onclick="fecharLoja()">&times;</button>
             </div>
             <p class="saldo-loja">Seu saldo: <strong style="color: #ffd60a;"><span id="modal-saldo">0</span> 🪙</strong></p>
+            <p style="font-size: 0.8rem; color: #8e8e93; margin-bottom:15px;">Os itens comprados vão para a sua Mochila.</p>
             <div class="loja-lista" id="loja-lista"></div>
+        </div>
+    </div>
+
+    <!-- MODAL DA MOCHILA -->
+    <div id="mochila-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>🎒 Minha Mochila</h2>
+                <button class="close-btn" onclick="fecharMochila()">&times;</button>
+            </div>
+            <p class="saldo-loja">Itens que você comprou e guardou para usar depois.</p>
+            <div class="loja-lista" id="mochila-lista"></div>
+        </div>
+    </div>
+
+    <!-- MODAL DO DIÁRIO DE BORDO -->
+    <div id="diario-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>📊 Diário de Bordo</h2>
+                <button class="close-btn" onclick="fecharDiario()">&times;</button>
+            </div>
+            <p class="saldo-loja">Seu histórico de humor e missões dos últimos dias.</p>
+            <div class="loja-lista" id="diario-lista"></div>
         </div>
     </div>
 
@@ -106,11 +131,8 @@
                 <button class="close-btn" onclick="fecharConfig()">&times;</button>
             </div>
             
-            <!-- SEÇÃO MISSÕES -->
             <h3 class="config-section-title">Minhas Missões</h3>
-            <div class="form-group">
-                <input type="text" id="nova-missao-nome" placeholder="Ex: Estudar edição de vídeo..." maxlength="40">
-            </div>
+            <div class="form-group"><input type="text" id="nova-missao-nome" placeholder="Ex: Estudar edição de vídeo..." maxlength="40"></div>
             <div class="form-row">
                 <select id="nova-missao-tipo">
                     <option value="essencial">⭐ Essencial (Fixo)</option>
@@ -122,24 +144,14 @@
                     <option value="evening">Noite</option>
                 </select>
             </div>
-            <button class="btn-comprar pode-comprar" style="width:100%; margin-top:5px" onclick="adicionarMissaoCustomizada()">
-                + Adicionar Missão
-            </button>
+            <button class="btn-comprar pode-comprar" style="width:100%; margin-top:5px" onclick="adicionarMissaoCustomizada()">+ Adicionar Missão</button>
             <div id="lista-missoes-custom" class="loja-lista" style="margin-top:10px; margin-bottom: 25px;"></div>
 
-            <!-- SEÇÃO RECOMPENSAS -->
             <h3 class="config-section-title">Minhas Recompensas</h3>
-            <div class="form-group">
-                <input type="text" id="nova-recompensa-nome" placeholder="Ex: Comprar um jogo novo..." maxlength="40">
-            </div>
-            <div class="form-group">
-                <input type="number" id="nova-recompensa-custo" placeholder="Custo em moedas (Ex: 200)" min="1">
-            </div>
-            <button class="btn-comprar pode-comprar" style="width:100%; margin-top:5px" onclick="adicionarRecompensaCustomizada()">
-                + Adicionar Recompensa
-            </button>
+            <div class="form-group"><input type="text" id="nova-recompensa-nome" placeholder="Ex: Comprar um jogo novo..." maxlength="40"></div>
+            <div class="form-group"><input type="number" id="nova-recompensa-custo" placeholder="Custo em moedas (Ex: 200)" min="1"></div>
+            <button class="btn-comprar pode-comprar" style="width:100%; margin-top:5px" onclick="adicionarRecompensaCustomizada()">+ Adicionar Recompensa</button>
             <div id="lista-recompensas-custom" class="loja-lista" style="margin-top:10px;"></div>
-            
         </div>
     </div>
 
