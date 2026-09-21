@@ -55,7 +55,6 @@ body { background-color: #000000; color: #ffffff; display: flex; justify-content
 
 .modo-leve-ativo .mission-card.nao-essencial { display: none; }
 
-/* MODAIS E FORMULÁRIOS */
 .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.8); z-index: 100; justify-content: center; align-items: flex-end; }
 .modal.active { display: flex; }
 .modal-content { background-color: #1c1c1e; width: 100%; max-width: 400px; border-radius: 24px 24px 0 0; padding: 25px; animation: slideUp 0.3s ease; max-height: 85vh; overflow-y: auto; }
@@ -73,7 +72,6 @@ body { background-color: #000000; color: #ffffff; display: flex; justify-content
 .btn-comprar.pode-comprar { background-color: #2a2015; border: 1px solid #e8a851; }
 .btn-usar { background-color: #a3e6b5; color: #000; font-weight: bold; border: none; padding: 10px 15px; border-radius: 8px; cursor: pointer; }
 
-/* CARTÃO DE HISTÓRICO DO DIÁRIO */
 .historico-card { display: flex; background: #2c2c2e; padding: 15px; border-radius: 12px; align-items: center; justify-content: space-between; }
 .historico-data { font-size: 0.85rem; color: #8e8e93; margin-bottom: 4px; }
 .historico-resumo { font-size: 0.9rem; font-weight: bold; }
@@ -89,3 +87,7 @@ body { background-color: #000000; color: #ffffff; display: flex; justify-content
 .custom-info h4 { font-size: 0.9rem; margin-bottom:2px;}
 .custom-info span { font-size: 0.75rem; color: #8e8e93; }
 .btn-del { background: #3a2222; color: #ff4444; font-weight: bold; border: 1px solid #ff4444; border-radius: 6px; padding: 6px 12px; cursor: pointer; }
+
+/* ESTILOS TELA DE LOGIN */
+.login-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: #121212; display: flex; align-items: center; justify-content: center; z-index: 1000; padding: 20px; }
+.login-box { background-color: #1c1c1e; width: 100%; max-width: 350px; padding: 30px; border-radius: 20px; text-align: center; }
