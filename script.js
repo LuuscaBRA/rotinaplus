@@ -17,7 +17,6 @@ const db = getFirestore(app);
 
 const today = new Date().toLocaleDateString('pt-BR');
 
-// Estado Inicial do Jogador (Com Nickname)
 let player = {
     nickname: "Jogador",
     level: 1, xp: 0, lifecash: 0, streak: 0,
@@ -30,6 +29,33 @@ let player = {
 const loginScreen = document.getElementById('login-screen');
 const mainApp = document.getElementById('main-app');
 const loginMsg = document.getElementById('login-msg');
+
+let modoAtualAuth = 'login'; // 'login' ou 'register'
+
+function setModoAuth(modo) {
+    modoAtualAuth = modo;
+    document.getElementById('tab-login').classList.remove('active');
+    document.getElementById('tab-register').classList.remove('active');
+    loginMsg.innerText = '';
+
+    if (modo === 'login') {
+        document.getElementById('tab-login').classList.add('active');
+        document.getElementById('grupo-nick').style.display = 'none';
+        document.getElementById('btn-auth').innerText = 'Entrar';
+    } else {
+        document.getElementById('tab-register').classList.add('active');
+        document.getElementById('grupo-nick').style.display = 'block';
+        document.getElementById('btn-auth').innerText = 'Criar Nova Conta';
+    }
+}
+
+async function processarAuth() {
+    if (modoAtualAuth === 'login') {
+        await realizarLogin();
+    } else {
+        await realizarCadastro();
+    }
+}
 
 onAuthStateChanged(auth, async (user) => {
     if (user) {
@@ -62,11 +88,13 @@ onAuthStateChanged(auth, async (user) => {
 async function realizarLogin() {
     const email = document.getElementById('email-input').value.trim();
     const senha = document.getElementById('senha-input').value;
-    loginMsg.innerText = "Carregando...";
+    if (!email || !senha) return loginMsg.innerText = "Preencha todos os campos.";
+    
+    loginMsg.innerText = "A carregar...";
     try {
         await signInWithEmailAndPassword(auth, email, senha);
     } catch (error) {
-        loginMsg.innerText = "Erro: E-mail ou senha incorretos.";
+        loginMsg.innerText = "Erro: E-mail ou palavra-passe incorretos.";
     }
 }
 
@@ -75,18 +103,16 @@ async function realizarCadastro() {
     const email = document.getElementById('email-input').value.trim();
     const senha = document.getElementById('senha-input').value;
     
-    if(!apelido) {
-        loginMsg.innerText = "Por favor, digite o seu Apelido para cadastrar.";
-        return;
+    if(!apelido || !email || !senha) {
+        return loginMsg.innerText = "Por favor, preencha todos os campos.";
     }
 
-    loginMsg.innerText = "Criando conta...";
+    loginMsg.innerText = "A criar conta...";
     try {
-        player.nickname = apelido; // Salva o apelido no perfil do jogador
+        player.nickname = apelido;
         await createUserWithEmailAndPassword(auth, email, senha);
-        // O onAuthStateChanged vai rodar logo depois e salvar na nuvem
     } catch (error) {
-        loginMsg.innerText = "Erro: A senha precisa de 6 letras ou e-mail já está em uso.";
+        loginMsg.innerText = "Erro: A palavra-passe precisa de 6 letras ou o e-mail já está em uso.";
     }
 }
 
@@ -105,7 +131,6 @@ async function salvarNaNuvem() {
     }
 }
 
-// EFEITOS SONOROS
 let audioCtx;
 function playDing() {
     if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -119,7 +144,6 @@ function playDing() {
     osc.start(); osc.stop(audioCtx.currentTime + 0.3);
 }
 
-// BANCOS DE MISSÕES
 const essentialMissions = {
     morning: [{ id: "e_m1", title: "Levantar da cama", category: "essencial", xp: 10, coin: 2, hard: false }, { id: "e_m2", title: "Beber água", category: "essencial", xp: 5, coin: 1, hard: false }, { id: "e_m3", title: "Tomar banho", category: "essencial", xp: 10, coin: 3, hard: false }],
     afternoon: [{ id: "e_a1", title: "Fazer uma refeição nutritiva", category: "essencial", xp: 10, coin: 5, hard: false }, { id: "e_a2", title: "Definir missão principal", category: "organização", xp: 15, coin: 5, hard: false }],
@@ -133,14 +157,14 @@ const randomPool = {
 };
 
 const defaultStoreItems = [
-    { id: "s1", name: "Escolher seu jantar favorito", desc: "Você decide o que comer hoje", cost: 50 },
+    { id: "s1", name: "Escolher o seu jantar favorito", desc: "Você decide o que comer hoje", cost: 50 },
     { id: "s2", name: "Pequeno mimo", desc: "Comprar um doce ou algo", cost: 100 },
     { id: "s3", name: "Pedir comida", desc: "Pedir um delivery", cost: 150 },
-    { id: "s5", name: "Recompensa Maior", desc: "Um presente para você", cost: 500 }
+    { id: "s5", name: "Recompensa Maior", desc: "Um presente para si", cost: 500 }
 ];
 
 const achievements = [
-    { id: "ac1", icon: "🌱", title: "Primeiro passo", req: 1 }, { id: "ac2", icon: "🚿", title: "Cuidando de mim", req: 5 }, { id: "ac3", icon: "🎯", title: "Foco no dia", req: 10 }, { id: "ac5", icon: "🆙", title: "Subindo de nível", req: 50 }
+    { id: "ac1", icon: "🌱", title: "Primeiro passo", req: 1 }, { id: "ac2", icon: "🚿", title: "A cuidar de mim", req: 5 }, { id: "ac3", icon: "🎯", title: "Foco no dia", req: 10 }, { id: "ac5", icon: "🆙", title: "A subir de nível", req: 50 }
 ];
 
 function getRandomMissions(array, count) { return [...array].sort(() => 0.5 - Math.random()).slice(0, count); }
@@ -204,7 +228,7 @@ function updateUI() {
     if (btnMood) btnMood.classList.add('active');
 
     renderMissions(); renderAchievements(); renderStore(); renderMochila();
-    salvarNaNuvem(); // SALVA NA NUVEM!
+    salvarNaNuvem();
 }
 
 function toggleTask(id, xp, coin) {
@@ -285,7 +309,7 @@ function comprarItem(custo, nome, desc) {
 
 function renderMochila() {
     const container = document.getElementById('mochila-lista'); container.innerHTML = '';
-    if (player.inventory.length === 0) return container.innerHTML = '<p style="text-align:center;">Sua mochila está vazia.</p>';
+    if (player.inventory.length === 0) return container.innerHTML = '<p style="text-align:center;">A sua mochila está vazia.</p>';
     player.inventory.forEach((item, index) => {
         container.innerHTML += `<div class="loja-item"><div class="loja-info"><h3>${item.name}</h3></div><button class="btn-usar" onclick="usarItem(${index})">Usar Agora</button></div>`;
     });
@@ -333,7 +357,8 @@ function adicionarRecompensaCustomizada() {
 }
 function removerRecompensaCustomizada(id) { player.customRewards = player.customRewards.filter(r => r.id !== id); updateUI(); renderConfigList(); }
 
-window.realizarLogin = realizarLogin; window.realizarCadastro = realizarCadastro; window.fazerLogout = fazerLogout;
+window.setModoAuth = setModoAuth; window.processarAuth = processarAuth;
+window.fazerLogout = fazerLogout;
 window.selectMood = selectMood; window.toggleModoLeve = toggleModoLeve; window.switchTab = switchTab;
 window.abrirLoja = abrirLoja; window.fecharLoja = fecharLoja; window.comprarItem = comprarItem;
 window.abrirMochila = abrirMochila; window.fecharMochila = fecharMochila; window.usarItem = usarItem;
