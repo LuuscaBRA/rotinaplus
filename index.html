@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Level Up</title>
+    <title>Rotina+</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div class="app-container">
         <!-- CABEÇALHO -->
         <header class="top-header">
-            <div class="logo">🎮 LEVEL UP</div>
+            <div class="logo">🎮 ROTINA+</div>
             <div style="display: flex; align-items: center; gap: 15px;">
                 <div class="date" id="current-date">--</div>
                 <button onclick="abrirConfig()" style="background:none; border:none; font-size:1.2rem; cursor:pointer;" title="Configurações">⚙️</button>
@@ -74,15 +74,11 @@
             <button class="tab" id="tab-evening" onclick="switchTab('evening')">🌙 Noite</button>
         </div>
 
-        <div class="missions-list" id="missions-container">
-            <!-- Gerado via JavaScript -->
-        </div>
+        <div class="missions-list" id="missions-container"></div>
 
         <section class="achievements-section">
             <h2 class="section-title">🏆 Conquistas</h2>
-            <div class="achievements-list" id="achievements-container">
-                <!-- Gerado via JavaScript -->
-            </div>
+            <div class="achievements-list" id="achievements-container"></div>
         </section>
 
         <footer class="app-footer">
@@ -102,15 +98,16 @@
         </div>
     </div>
 
-    <!-- MODAL DE CONFIGURAÇÕES / MISSÕES CUSTOMIZADAS -->
+    <!-- MODAL DE CONFIGURAÇÕES -->
     <div id="config-modal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h2>⚙️ Minhas Missões</h2>
+                <h2>⚙️ Configurações</h2>
                 <button class="close-btn" onclick="fecharConfig()">&times;</button>
             </div>
-            <p class="saldo-loja">Adicione missões exclusivas para a sua rotina.</p>
             
+            <!-- SEÇÃO MISSÕES -->
+            <h3 class="config-section-title">Minhas Missões</h3>
             <div class="form-group">
                 <input type="text" id="nova-missao-nome" placeholder="Ex: Estudar edição de vídeo..." maxlength="40">
             </div>
@@ -125,18 +122,27 @@
                     <option value="evening">Noite</option>
                 </select>
             </div>
-            <button class="btn-comprar pode-comprar" style="width:100%; margin-top:10px" onclick="adicionarMissaoCustomizada()">
+            <button class="btn-comprar pode-comprar" style="width:100%; margin-top:5px" onclick="adicionarMissaoCustomizada()">
                 + Adicionar Missão
             </button>
-            
-            <h3 style="margin-top:25px; font-size:1rem; border-bottom:1px solid #333; padding-bottom:10px;">Missões Criadas:</h3>
-            <div id="lista-missoes-custom" class="loja-lista" style="margin-top:10px;">
-                <!-- Lista gerada no JS -->
+            <div id="lista-missoes-custom" class="loja-lista" style="margin-top:10px; margin-bottom: 25px;"></div>
+
+            <!-- SEÇÃO RECOMPENSAS -->
+            <h3 class="config-section-title">Minhas Recompensas</h3>
+            <div class="form-group">
+                <input type="text" id="nova-recompensa-nome" placeholder="Ex: Comprar um jogo novo..." maxlength="40">
             </div>
+            <div class="form-group">
+                <input type="number" id="nova-recompensa-custo" placeholder="Custo em moedas (Ex: 200)" min="1">
+            </div>
+            <button class="btn-comprar pode-comprar" style="width:100%; margin-top:5px" onclick="adicionarRecompensaCustomizada()">
+                + Adicionar Recompensa
+            </button>
+            <div id="lista-recompensas-custom" class="loja-lista" style="margin-top:10px;"></div>
+            
         </div>
     </div>
 
-    <!-- Confetes para a comemoração -->
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <script src="script.js"></script>
 </body>
