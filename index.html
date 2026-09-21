@@ -5,8 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Rotina+</title>
     <link rel="stylesheet" href="style.css">
-    
-    <!-- Configurações do Aplicativo (PWA) -->
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#121212">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -15,8 +13,31 @@
     <link rel="apple-touch-icon" href="https://img.icons8.com/emoji/512/egg-emoji.png">
 </head>
 <body>
-    <div class="app-container">
-        <!-- CABEÇALHO -->
+    
+    <!-- TELA DE LOGIN / CADASTRO -->
+    <div id="login-screen" class="login-container">
+        <div class="login-box">
+            <h1 class="logo" style="font-size: 2rem; margin-bottom: 10px;">🎮 ROTINA+</h1>
+            <p style="color: #8e8e93; font-size: 0.9rem; margin-bottom: 25px;">Seu companheiro de evolução diária.</p>
+            
+            <div class="form-group">
+                <input type="text" id="nick-input" placeholder="Seu Apelido (Apenas para Cadastro)">
+            </div>
+            <div class="form-group">
+                <input type="email" id="email-input" placeholder="Seu e-mail" required>
+            </div>
+            <div class="form-group">
+                <input type="password" id="senha-input" placeholder="Sua senha (mín 6 letras)" required>
+            </div>
+            
+            <button class="btn-comprar pode-comprar" style="width: 100%; padding: 15px; margin-top: 10px;" onclick="realizarLogin()">Entrar</button>
+            <button class="btn-comprar" style="width: 100%; padding: 15px; margin-top: 10px;" onclick="realizarCadastro()">Criar Nova Conta</button>
+            <p id="login-msg" style="color: #ff4444; font-size: 0.8rem; margin-top: 15px; text-align: center;"></p>
+        </div>
+    </div>
+
+    <!-- O APLICATIVO PRINCIPAL -->
+    <div class="app-container" id="main-app" style="display: none;">
         <header class="top-header">
             <div class="logo">🎮 ROTINA+</div>
             <div style="display: flex; align-items: center; gap: 15px;">
@@ -27,32 +48,21 @@
 
         <section class="level-card">
             <div class="level-header">
-                <h1 class="level-title">NÍVEL <span id="level">1</span> <span id="avatar">🥚</span></h1>
+                <div>
+                    <div id="player-nickname" style="font-size: 0.9rem; color: #a3e6b5; font-weight: bold; margin-bottom: 2px; text-transform: uppercase;">Jogador</div>
+                    <h1 class="level-title">NÍVEL <span id="level">1</span> <span id="avatar">🥚</span></h1>
+                </div>
                 <span class="sparkles">✨</span>
             </div>
-            
             <div class="xp-text"><span id="xp">0</span> / <span id="xp-next">100</span> XP</div>
-            <div class="xp-bar">
-                <div class="xp-fill" id="xp-fill"></div>
-            </div>
-
+            <div class="xp-bar"><div class="xp-fill" id="xp-fill"></div></div>
             <div class="stats-grid">
-                <div class="stat-box">
-                    <div class="stat-value"><span id="streak">0</span> 🔥</div>
-                    <div class="stat-label">sequência</div>
-                </div>
-                <div class="stat-box">
-                    <div class="stat-value"><span id="lifecash">0</span> 🪙</div>
-                    <div class="stat-label">moedas</div>
-                </div>
-                <div class="stat-box">
-                    <div class="stat-value"><span id="missions-completed">0</span>/<span id="missions-total">0</span></div>
-                    <div class="stat-label">missões</div>
-                </div>
+                <div class="stat-box"><div class="stat-value"><span id="streak">0</span> 🔥</div><div class="stat-label">sequência</div></div>
+                <div class="stat-box"><div class="stat-value"><span id="lifecash">0</span> 🪙</div><div class="stat-label">moedas</div></div>
+                <div class="stat-box"><div class="stat-value"><span id="missions-completed">0</span>/<span id="missions-total">0</span></div><div class="stat-label">missões</div></div>
             </div>
         </section>
 
-        <!-- COMO VOCÊ ESTÁ HOJE? (Agora grava o humor) -->
         <section class="mood-section">
             <h2 class="section-title">Como você está hoje?</h2>
             <div class="mood-grid">
@@ -68,7 +78,6 @@
             🧡 <strong>Sem cobrança.</strong> Em um dia difícil, ative o modo abaixo. Ele reduz as missões e foca apenas na sua sobrevivência básica hoje.
         </div>
 
-        <!-- 4 BOTÕES PRINCIPAIS -->
         <div class="action-grid">
             <button class="action-btn" id="btn-modo-leve" onclick="toggleModoLeve()">🔴 Dia difícil</button>
             <button class="action-btn" onclick="abrirLoja()">🎁 Loja</button>
@@ -89,68 +98,22 @@
             <div class="achievements-list" id="achievements-container"></div>
         </section>
 
-        <footer class="app-footer">
-            Seu objetivo não é fazer tudo. É continuar cuidando de você.
-        </footer>
+        <footer class="app-footer">Seu objetivo não é fazer tudo. É continuar cuidando de você.</footer>
     </div>
 
-    <!-- MODAL DA LOJA -->
-    <div id="loja-modal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2>🎁 Loja Lifecash</h2>
-                <button class="close-btn" onclick="fecharLoja()">&times;</button>
-            </div>
-            <p class="saldo-loja">Seu saldo: <strong style="color: #ffd60a;"><span id="modal-saldo">0</span> 🪙</strong></p>
-            <p style="font-size: 0.8rem; color: #8e8e93; margin-bottom:15px;">Os itens comprados vão para a sua Mochila.</p>
-            <div class="loja-lista" id="loja-lista"></div>
-        </div>
-    </div>
-
-    <!-- MODAL DA MOCHILA -->
-    <div id="mochila-modal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2>🎒 Minha Mochila</h2>
-                <button class="close-btn" onclick="fecharMochila()">&times;</button>
-            </div>
-            <p class="saldo-loja">Itens que você comprou e guardou para usar depois.</p>
-            <div class="loja-lista" id="mochila-lista"></div>
-        </div>
-    </div>
-
-    <!-- MODAL DO DIÁRIO DE BORDO -->
-    <div id="diario-modal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2>📊 Diário de Bordo</h2>
-                <button class="close-btn" onclick="fecharDiario()">&times;</button>
-            </div>
-            <p class="saldo-loja">Seu histórico de humor e missões dos últimos dias.</p>
-            <div class="loja-lista" id="diario-lista"></div>
-        </div>
-    </div>
-
-    <!-- MODAL DE CONFIGURAÇÕES -->
+    <!-- MODAIS DO APP -->
+    <div id="loja-modal" class="modal"><div class="modal-content"><div class="modal-header"><h2>🎁 Loja Lifecash</h2><button class="close-btn" onclick="fecharLoja()">&times;</button></div><p class="saldo-loja">Seu saldo: <strong style="color: #ffd60a;"><span id="modal-saldo">0</span> 🪙</strong></p><p style="font-size: 0.8rem; color: #8e8e93; margin-bottom:15px;">Os itens comprados vão para a sua Mochila.</p><div class="loja-lista" id="loja-lista"></div></div></div>
+    <div id="mochila-modal" class="modal"><div class="modal-content"><div class="modal-header"><h2>🎒 Minha Mochila</h2><button class="close-btn" onclick="fecharMochila()">&times;</button></div><p class="saldo-loja">Itens que você comprou e guardou para usar depois.</p><div class="loja-lista" id="mochila-lista"></div></div></div>
+    <div id="diario-modal" class="modal"><div class="modal-content"><div class="modal-header"><h2>📊 Diário de Bordo</h2><button class="close-btn" onclick="fecharDiario()">&times;</button></div><p class="saldo-loja">Seu histórico de humor e missões dos últimos dias.</p><div class="loja-lista" id="diario-lista"></div></div></div>
+    
     <div id="config-modal" class="modal">
         <div class="modal-content">
-            <div class="modal-header">
-                <h2>⚙️ Configurações</h2>
-                <button class="close-btn" onclick="fecharConfig()">&times;</button>
-            </div>
-            
+            <div class="modal-header"><h2>⚙️ Configurações</h2><button class="close-btn" onclick="fecharConfig()">&times;</button></div>
             <h3 class="config-section-title">Minhas Missões</h3>
             <div class="form-group"><input type="text" id="nova-missao-nome" placeholder="Ex: Estudar edição de vídeo..." maxlength="40"></div>
             <div class="form-row">
-                <select id="nova-missao-tipo">
-                    <option value="essencial">⭐ Essencial (Fixo)</option>
-                    <option value="aleatoria">🎲 Alternativa (Sorteio)</option>
-                </select>
-                <select id="nova-missao-turno">
-                    <option value="morning">Manhã</option>
-                    <option value="afternoon">Tarde</option>
-                    <option value="evening">Noite</option>
-                </select>
+                <select id="nova-missao-tipo"><option value="essencial">⭐ Essencial (Fixo)</option><option value="aleatoria">🎲 Alternativa (Sorteio)</option></select>
+                <select id="nova-missao-turno"><option value="morning">Manhã</option><option value="afternoon">Tarde</option><option value="evening">Noite</option></select>
             </div>
             <button class="btn-comprar pode-comprar" style="width:100%; margin-top:5px" onclick="adicionarMissaoCustomizada()">+ Adicionar Missão</button>
             <div id="lista-missoes-custom" class="loja-lista" style="margin-top:10px; margin-bottom: 25px;"></div>
@@ -159,21 +122,20 @@
             <div class="form-group"><input type="text" id="nova-recompensa-nome" placeholder="Ex: Comprar um jogo novo..." maxlength="40"></div>
             <div class="form-group"><input type="number" id="nova-recompensa-custo" placeholder="Custo em moedas (Ex: 200)" min="1"></div>
             <button class="btn-comprar pode-comprar" style="width:100%; margin-top:5px" onclick="adicionarRecompensaCustomizada()">+ Adicionar Recompensa</button>
-            <div id="lista-recompensas-custom" class="loja-lista" style="margin-top:10px;"></div>
+            <div id="lista-recompensas-custom" class="loja-lista" style="margin-top:10px; margin-bottom: 25px;"></div>
+            
+            <button class="btn-del" style="width:100%; padding: 15px; font-size: 1rem;" onclick="fazerLogout()">Sair da Conta</button>
         </div>
     </div>
 
+    <!-- SCRIPTS -->
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
-    <script src="script.js"></script>
-    <script src="script.js"></script>
+    <script type="module" src="script.js"></script>
     
-    <!-- Registro do Service Worker (Para funcionar Offline) -->
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('sw.js')
-                .then(reg => console.log('App instalado com sucesso!'))
-                .catch(err => console.log('Erro ao instalar App:', err));
+                navigator.serviceWorker.register('sw.js').then(reg => console.log('PWA OK!')).catch(err => console.log('Erro PWA:', err));
             });
         }
     </script>
