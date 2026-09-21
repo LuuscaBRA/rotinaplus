@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-PT">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -14,29 +14,33 @@
 </head>
 <body>
     
-    <!-- TELA DE LOGIN / CADASTRO -->
+    <!-- ECRÃ DE LOGIN / REGISTO -->
     <div id="login-screen" class="login-container">
         <div class="login-box">
             <h1 class="logo" style="font-size: 2rem; margin-bottom: 10px;">🎮 ROTINA+</h1>
-            <p style="color: #8e8e93; font-size: 0.9rem; margin-bottom: 25px;">Seu companheiro de evolução diária.</p>
+            <p style="color: #8e8e93; font-size: 0.9rem; margin-bottom: 20px;">O seu companheiro de evolução diária.</p>
             
-            <div class="form-group">
-                <input type="text" id="nick-input" placeholder="Seu Apelido (Apenas para Cadastro)">
+            <div class="login-tabs">
+                <button id="tab-login" class="login-tab active" onclick="setModoAuth('login')">Entrar</button>
+                <button id="tab-register" class="login-tab" onclick="setModoAuth('register')">Criar Conta</button>
+            </div>
+
+            <div class="form-group" id="grupo-nick" style="display: none;">
+                <input type="text" id="nick-input" placeholder="O seu Apelido">
             </div>
             <div class="form-group">
-                <input type="email" id="email-input" placeholder="Seu e-mail" required>
+                <input type="email" id="email-input" placeholder="O seu e-mail" required>
             </div>
             <div class="form-group">
-                <input type="password" id="senha-input" placeholder="Sua senha (mín 6 letras)" required>
+                <input type="password" id="senha-input" placeholder="Palavra-passe (mín 6 letras)" required>
             </div>
             
-            <button class="btn-comprar pode-comprar" style="width: 100%; padding: 15px; margin-top: 10px;" onclick="realizarLogin()">Entrar</button>
-            <button class="btn-comprar" style="width: 100%; padding: 15px; margin-top: 10px;" onclick="realizarCadastro()">Criar Nova Conta</button>
+            <button class="btn-comprar pode-comprar" id="btn-auth" style="width: 100%; padding: 15px; margin-top: 10px;" onclick="processarAuth()">Entrar</button>
             <p id="login-msg" style="color: #ff4444; font-size: 0.8rem; margin-top: 15px; text-align: center;"></p>
         </div>
     </div>
 
-    <!-- O APLICATIVO PRINCIPAL -->
+    <!-- A APLICAÇÃO PRINCIPAL -->
     <div class="app-container" id="main-app" style="display: none;">
         <header class="top-header">
             <div class="logo">🎮 ROTINA+</div>
@@ -64,7 +68,7 @@
         </section>
 
         <section class="mood-section">
-            <h2 class="section-title">Como você está hoje?</h2>
+            <h2 class="section-title">Como se sente hoje?</h2>
             <div class="mood-grid">
                 <button class="mood-btn" id="mood-😁" onclick="selectMood('😁')">😁</button>
                 <button class="mood-btn" id="mood-🙂" onclick="selectMood('🙂')">🙂</button>
@@ -75,7 +79,7 @@
         </section>
 
         <div class="warning-banner" id="warning-banner">
-            🧡 <strong>Sem cobrança.</strong> Em um dia difícil, ative o modo abaixo. Ele reduz as missões e foca apenas na sua sobrevivência básica hoje.
+            🧡 <strong>Sem cobrança.</strong> Num dia difícil, ative o modo abaixo. Ele reduz as missões e foca apenas na sua sobrevivência básica hoje.
         </div>
 
         <div class="action-grid">
@@ -98,18 +102,18 @@
             <div class="achievements-list" id="achievements-container"></div>
         </section>
 
-        <footer class="app-footer">Seu objetivo não é fazer tudo. É continuar cuidando de você.</footer>
+        <footer class="app-footer">O seu objetivo não é fazer tudo. É continuar a cuidar de si.</footer>
     </div>
 
-    <!-- MODAIS DO APP -->
-    <div id="loja-modal" class="modal"><div class="modal-content"><div class="modal-header"><h2>🎁 Loja Lifecash</h2><button class="close-btn" onclick="fecharLoja()">&times;</button></div><p class="saldo-loja">Seu saldo: <strong style="color: #ffd60a;"><span id="modal-saldo">0</span> 🪙</strong></p><p style="font-size: 0.8rem; color: #8e8e93; margin-bottom:15px;">Os itens comprados vão para a sua Mochila.</p><div class="loja-lista" id="loja-lista"></div></div></div>
-    <div id="mochila-modal" class="modal"><div class="modal-content"><div class="modal-header"><h2>🎒 Minha Mochila</h2><button class="close-btn" onclick="fecharMochila()">&times;</button></div><p class="saldo-loja">Itens que você comprou e guardou para usar depois.</p><div class="loja-lista" id="mochila-lista"></div></div></div>
-    <div id="diario-modal" class="modal"><div class="modal-content"><div class="modal-header"><h2>📊 Diário de Bordo</h2><button class="close-btn" onclick="fecharDiario()">&times;</button></div><p class="saldo-loja">Seu histórico de humor e missões dos últimos dias.</p><div class="loja-lista" id="diario-lista"></div></div></div>
+    <!-- MODAIS DA APLICAÇÃO -->
+    <div id="loja-modal" class="modal"><div class="modal-content"><div class="modal-header"><h2>🎁 Loja Lifecash</h2><button class="close-btn" onclick="fecharLoja()">&times;</button></div><p class="saldo-loja">O seu saldo: <strong style="color: #ffd60a;"><span id="modal-saldo">0</span> 🪙</strong></p><p style="font-size: 0.8rem; color: #8e8e93; margin-bottom:15px;">Os itens comprados vão para a sua Mochila.</p><div class="loja-lista" id="loja-lista"></div></div></div>
+    <div id="mochila-modal" class="modal"><div class="modal-content"><div class="modal-header"><h2>🎒 Minha Mochila</h2><button class="close-btn" onclick="fecharMochila()">&times;</button></div><p class="saldo-loja">Itens que comprou e guardou para usar depois.</p><div class="loja-lista" id="mochila-lista"></div></div></div>
+    <div id="diario-modal" class="modal"><div class="modal-content"><div class="modal-header"><h2>📊 Diário de Bordo</h2><button class="close-btn" onclick="fecharDiario()">&times;</button></div><p class="saldo-loja">Histórico de humor e missões dos últimos dias.</p><div class="loja-lista" id="diario-lista"></div></div></div>
     
     <div id="config-modal" class="modal">
         <div class="modal-content">
             <div class="modal-header"><h2>⚙️ Configurações</h2><button class="close-btn" onclick="fecharConfig()">&times;</button></div>
-            <h3 class="config-section-title">Minhas Missões</h3>
+            <h3 class="config-section-title">As Minhas Missões</h3>
             <div class="form-group"><input type="text" id="nova-missao-nome" placeholder="Ex: Estudar edição de vídeo..." maxlength="40"></div>
             <div class="form-row">
                 <select id="nova-missao-tipo"><option value="essencial">⭐ Essencial (Fixo)</option><option value="aleatoria">🎲 Alternativa (Sorteio)</option></select>
@@ -118,7 +122,7 @@
             <button class="btn-comprar pode-comprar" style="width:100%; margin-top:5px" onclick="adicionarMissaoCustomizada()">+ Adicionar Missão</button>
             <div id="lista-missoes-custom" class="loja-lista" style="margin-top:10px; margin-bottom: 25px;"></div>
 
-            <h3 class="config-section-title">Minhas Recompensas</h3>
+            <h3 class="config-section-title">As Minhas Recompensas</h3>
             <div class="form-group"><input type="text" id="nova-recompensa-nome" placeholder="Ex: Comprar um jogo novo..." maxlength="40"></div>
             <div class="form-group"><input type="number" id="nova-recompensa-custo" placeholder="Custo em moedas (Ex: 200)" min="1"></div>
             <button class="btn-comprar pode-comprar" style="width:100%; margin-top:5px" onclick="adicionarRecompensaCustomizada()">+ Adicionar Recompensa</button>
