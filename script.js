@@ -7,21 +7,25 @@ let player = {
     lastLoginDate: today,
     dailyMissions: null,
     customMissions: [], 
-    customRewards: [] // NOVO: Guarda as recompensas criadas
+    customRewards: [],
+    inventory: [], // NOVO: A Mochila
+    history: []    // NOVO: Diário de Bordo
 };
 
 const savedData = localStorage.getItem('levelup_data_v2');
 if (savedData) {
-    // Mescla garantindo que os novos arrays existam
-    player = { customMissions: [], customRewards: [], ...JSON.parse(savedData) }; 
+    player = { inventory: [], history: [], customMissions: [], customRewards: [], ...JSON.parse(savedData) }; 
     if (player.lastLoginDate !== today) {
         player.lastLoginDate = today;
         player.tasksCompleted = [];
         player.dailyMissions = null; 
+        player.modoLeve = false; // Reseta o dia difícil
     }
 }
 
+// ==========================================
 // EFEITOS SONOROS
+// ==========================================
 let audioCtx;
 function playDing() {
     if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -39,7 +43,9 @@ function playDing() {
     oscillator.stop(audioCtx.currentTime + 0.3);
 }
 
-// MISSÕES PADRÕES
+// ==========================================
+// BANCOS PADRÕES
+// ==========================================
 const essentialMissions = {
     morning: [
         { id: "e_m1", title: "Levantar da cama", category: "essencial", xp: 10, coin: 2, hard: false },
@@ -77,7 +83,6 @@ const randomPool = {
     ]
 };
 
-// RECOMPENSAS PADRÕES
 const defaultStoreItems = [
     { id: "s1", name: "Escolher seu jantar favorito", desc: "Você decide o que comer hoje", cost: 50 },
     { id: "s2", name: "Pequeno mimo", desc: "Comprar um doce ou algo pequeno", cost: 100 },
@@ -94,9 +99,11 @@ const achievements = [
     { id: "ac5", icon: "🆙", title: "Subindo de nível", req: 50 }
 ];
 
+// ==========================================
+// FUNÇÕES PRINCIPAIS E HISTÓRICO
+// ==========================================
 function getRandomMissions(array, count) {
-    const shuffled = [...array].sort(() => 0.5 - Math.random());
-    return shuffled.slice(0, count);
+    return [...array].sort(() => 0.5 - Math.random()).slice(0, count);
 }
 
 function generateDailyMissions() {
@@ -113,10 +120,29 @@ function generateDailyMissions() {
     }
 }
 
-function saveData() {
-    localStorage.setItem('levelup_data_v2', JSON.stringify(player));
+// Retorna ou cria o log de hoje no Diário
+function getTodayLog() {
+    let log = player.history.find(h => h.date === today);
+    if (!log) {
+        log = { date: today, mood: '😐', tasksDone: 0 };
+        player.history.push(log);
+        // Mantém apenas os últimos 14 dias para não pesar o navegador
+        if (player.history.length > 14) player.history.shift();
+    }
+    return log;
 }
 
+function selectMood(emoji) {
+    document.querySelectorAll('.mood-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById(`mood-${emoji}`).classList.add('active');
+    
+    // Salva no diário de hoje
+    const log = getTodayLog();
+    log.mood = emoji;
+    saveData();
+}
+
+function saveData() { localStorage.setItem('levelup_data_v2', JSON.stringify(player)); }
 function getAvatar(level) {
     if (level < 3) return "🥚";
     if (level < 5) return "🐣";
@@ -126,7 +152,6 @@ function getAvatar(level) {
 
 function updateUI() {
     const nextXP = player.level * 100;
-    
     document.getElementById('level').innerText = player.level;
     document.getElementById('avatar').innerText = getAvatar(player.level);
     document.getElementById('xp').innerText = player.xp;
@@ -134,19 +159,23 @@ function updateUI() {
     document.getElementById('lifecash').innerText = player.lifecash;
     document.getElementById('streak').innerText = player.streak;
     document.getElementById('modal-saldo').innerText = player.lifecash;
-
-    const percentage = Math.min((player.xp / nextXP) * 100, 100);
-    document.getElementById('xp-fill').style.width = `${percentage}%`;
+    document.getElementById('xp-fill').style.width = `${Math.min((player.xp / nextXP) * 100, 100)}%`;
 
     let totalM = 0;
     Object.values(player.dailyMissions).forEach(arr => totalM += arr.length);
-    
     document.getElementById('missions-completed').innerText = player.tasksCompleted.length;
     document.getElementById('missions-total').innerText = totalM;
+
+    // Recuperar humor salvo de hoje, se houver
+    const log = getTodayLog();
+    document.querySelectorAll('.mood-btn').forEach(b => b.classList.remove('active'));
+    const btnMood = document.getElementById(`mood-${log.mood}`);
+    if (btnMood) btnMood.classList.add('active');
 
     renderMissions();
     renderAchievements();
     renderStore();
+    renderMochila();
     saveData();
 }
 
@@ -156,14 +185,12 @@ function toggleTask(id, xp, coin) {
         player.tasksCompleted.push(id);
         player.xp += xp;
         player.lifecash += coin;
-        
         playDing();
 
         const nextXP = player.level * 100;
         if (player.xp >= nextXP) {
             player.xp -= nextXP;
             player.level++;
-            
             confetti({ particleCount: 150, spread: 80, origin: { y: 0.6 } });
             setTimeout(() => { alert(`🎉 Magnífico! Subiu para o Nível ${player.level}!`); }, 600);
         }
@@ -172,19 +199,20 @@ function toggleTask(id, xp, coin) {
         player.xp = Math.max(0, player.xp - xp);
         player.lifecash = Math.max(0, player.lifecash - coin);
     }
+    
+    // Atualiza contagem no diário
+    const log = getTodayLog();
+    log.tasksDone = player.tasksCompleted.length;
+    
     updateUI();
 }
 
 function renderMissions() {
     const container = document.getElementById('missions-container');
     container.innerHTML = '';
-    const currentMissions = player.dailyMissions[player.currentTab];
-
-    currentMissions.forEach(m => {
+    player.dailyMissions[player.currentTab].forEach(m => {
         const isDone = player.tasksCompleted.includes(m.id);
-        const isEssential = m.category === "essencial";
-        const cardClass = `mission-card ${isDone ? 'completed' : ''} ${!isEssential ? 'nao-essencial' : ''}`;
-        
+        const cardClass = `mission-card ${isDone ? 'completed' : ''} ${m.category !== "essencial" ? 'nao-essencial' : ''}`;
         container.innerHTML += `
             <div class="${cardClass}" onclick="toggleTask('${m.id}', ${m.xp}, ${m.coin})">
                 <div class="checkbox-wrapper"><div class="custom-checkbox"></div></div>
@@ -196,8 +224,7 @@ function renderMissions() {
                     <div class="reward-xp">+${m.xp} XP</div>
                     <div class="reward-coin">+${m.coin} 🪙</div>
                 </div>
-            </div>
-        `;
+            </div>`;
     });
 }
 
@@ -214,8 +241,7 @@ function renderAchievements() {
                     <div class="ach-title">${ach.title}</div>
                     <div class="ach-status">${isUnlocked ? 'Desbloqueada' : 'Ainda bloqueada'}</div>
                 </div>
-            </div>
-        `;
+            </div>`;
     });
 }
 
@@ -235,159 +261,159 @@ function toggleModoLeve() {
         btn.style.borderColor = "#a3e6b5";
     } else {
         document.body.classList.remove('modo-leve-ativo');
-        btn.innerHTML = "🔴 Ativar dia difícil";
+        btn.innerHTML = "🔴 Dia difícil";
         btn.style.borderColor = "transparent";
     }
 }
 
-function selectMood(btn) {
-    document.querySelectorAll('.mood-btn').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-}
-
 // ==========================================
-// LOJA E RECOMPENSAS
+// LOJA, MOCHILA E DIÁRIO
 // ==========================================
-
 function abrirLoja() { document.getElementById('loja-modal').classList.add('active'); }
 function fecharLoja() { document.getElementById('loja-modal').classList.remove('active'); }
 
 function renderStore() {
     const container = document.getElementById('loja-lista');
     container.innerHTML = '';
-    
-    // Junta os itens padrões com os criados pelo usuário
     const allStoreItems = [...defaultStoreItems, ...player.customRewards];
-
     allStoreItems.forEach(item => {
         const btnClass = player.lifecash >= item.cost ? "btn-comprar pode-comprar" : "btn-comprar";
+        // Passamos o nome e a descrição para guardar na mochila
         container.innerHTML += `
             <div class="loja-item">
                 <div class="loja-info"><h3>${item.name}</h3><p>${item.desc || 'Recompensa'}</p></div>
-                <button class="${btnClass}" onclick="comprarItem(${item.cost}, '${item.name}')">${item.cost} 🪙</button>
+                <button class="${btnClass}" onclick="comprarItem(${item.cost}, '${item.name}', '${item.desc || 'Recompensa'}')">${item.cost} 🪙</button>
+            </div>`;
+    });
+}
+
+function comprarItem(custo, nome, desc) {
+    if (player.lifecash >= custo) {
+        if (confirm(`Deseja comprar "${nome}" e guardar na sua Mochila por ${custo} moedas?`)) {
+            player.lifecash -= custo;
+            
+            // Adiciona o item à mochila
+            player.inventory.push({ id: Date.now(), name: nome, desc: desc });
+            
+            updateUI();
+            alert(`🎒 "${nome}" foi guardado na sua Mochila! Vá até lá quando quiser usar.`);
+        }
+    } else { alert("Ainda não tem moedas suficientes para esta recompensa."); }
+}
+
+// Mochila (Inventário)
+function abrirMochila() { document.getElementById('mochila-modal').classList.add('active'); }
+function fecharMochila() { document.getElementById('mochila-modal').classList.remove('active'); }
+
+function renderMochila() {
+    const container = document.getElementById('mochila-lista');
+    container.innerHTML = '';
+    if (player.inventory.length === 0) {
+        container.innerHTML = '<p style="color:#8e8e93; font-size:0.9rem; text-align:center;">Sua mochila está vazia. Compre algo na loja!</p>';
+        return;
+    }
+    
+    player.inventory.forEach((item, index) => {
+        container.innerHTML += `
+            <div class="loja-item">
+                <div class="loja-info"><h3>${item.name}</h3><p>${item.desc}</p></div>
+                <button class="btn-usar" onclick="usarItem(${index})">Usar Agora</button>
+            </div>`;
+    });
+}
+
+function usarItem(index) {
+    const item = player.inventory[index];
+    if (confirm(`Deseja usar/consumir "${item.name}" agora?`)) {
+        player.inventory.splice(index, 1);
+        confetti({ particleCount: 80, spread: 60, origin: { y: 0.8 } });
+        updateUI();
+        alert(`✨ Você usou: ${item.name}! Aproveite o seu momento.`);
+    }
+}
+
+// Diário de Bordo
+function abrirDiario() { 
+    document.getElementById('diario-modal').classList.add('active'); 
+    renderDiario();
+}
+function fecharDiario() { document.getElementById('diario-modal').classList.remove('active'); }
+
+function renderDiario() {
+    const container = document.getElementById('diario-lista');
+    container.innerHTML = '';
+    // Pega o histórico e inverte para mostrar do mais recente para o mais antigo
+    const historicoReverso = [...player.history].reverse();
+
+    historicoReverso.forEach(log => {
+        container.innerHTML += `
+            <div class="historico-card">
+                <div>
+                    <div class="historico-data">${log.date}</div>
+                    <div class="historico-resumo">${log.tasksDone} missões concluídas</div>
+                </div>
+                <div class="historico-emoji">${log.mood}</div>
             </div>
         `;
     });
 }
 
-function comprarItem(custo, nome) {
-    if (player.lifecash >= custo) {
-        if (confirm(`Deseja resgatar "${nome}" por ${custo} moedas?`)) {
-            player.lifecash -= custo;
-            confetti({ particleCount: 50, spread: 40, origin: { y: 0.8 } });
-            updateUI();
-            alert(`🎉 Recompensa Resgatada: ${nome}! Aproveite, bem merecido.`);
-        }
-    } else { alert("Ainda não tem moedas suficientes para esta recompensa."); }
-}
-
 // ==========================================
-// CONFIGURAÇÕES (CUSTOMIZAÇÃO)
+// CONFIGURAÇÕES (MISSÕES E RECOMPENSAS CUSTOM)
 // ==========================================
-
-function abrirConfig() { 
-    document.getElementById('config-modal').classList.add('active'); 
-    renderConfigList();
-}
-
-function fecharConfig() { 
-    document.getElementById('config-modal').classList.remove('active'); 
-}
+function abrirConfig() { document.getElementById('config-modal').classList.add('active'); renderConfigList(); }
+function fecharConfig() { document.getElementById('config-modal').classList.remove('active'); }
 
 function renderConfigList() {
-    // 1. Renderiza Missões
     const listaMissoes = document.getElementById('lista-missoes-custom');
     listaMissoes.innerHTML = '';
-    
-    if(!player.customMissions || player.customMissions.length === 0) {
-        listaMissoes.innerHTML = '<p style="color:#8e8e93; font-size:0.8rem;">Nenhuma missão personalizada.</p>';
-    } else {
+    if(!player.customMissions || player.customMissions.length === 0) { listaMissoes.innerHTML = '<p style="color:#8e8e93; font-size:0.8rem;">Nenhuma missão personalizada.</p>'; } else {
         player.customMissions.forEach(m => {
             const turnoStr = m.turn === 'morning' ? 'Manhã' : m.turn === 'afternoon' ? 'Tarde' : 'Noite';
-            const tipoStr = m.type === 'essencial' ? '⭐ Essencial' : '🎲 Alternativa';
-            listaMissoes.innerHTML += `
-                <div class="custom-item">
-                    <div class="custom-info">
-                        <h4>${m.title}</h4><span>${tipoStr} • ${turnoStr}</span>
-                    </div>
-                    <button class="btn-del" onclick="removerMissaoCustomizada('${m.id}')" title="Excluir">X</button>
-                </div>
-            `;
+            const tipoStr = m.type === 'essencial' ? '⭐ Ess' : '🎲 Alt';
+            listaMissoes.innerHTML += `<div class="custom-item"><div class="custom-info"><h4>${m.title}</h4><span>${tipoStr} • ${turnoStr}</span></div><button class="btn-del" onclick="removerMissaoCustomizada('${m.id}')">X</button></div>`;
         });
     }
 
-    // 2. Renderiza Recompensas
     const listaRecs = document.getElementById('lista-recompensas-custom');
     listaRecs.innerHTML = '';
-
-    if(!player.customRewards || player.customRewards.length === 0) {
-        listaRecs.innerHTML = '<p style="color:#8e8e93; font-size:0.8rem;">Nenhuma recompensa personalizada.</p>';
-    } else {
+    if(!player.customRewards || player.customRewards.length === 0) { listaRecs.innerHTML = '<p style="color:#8e8e93; font-size:0.8rem;">Nenhuma recompensa personalizada.</p>'; } else {
         player.customRewards.forEach(r => {
-            listaRecs.innerHTML += `
-                <div class="custom-item">
-                    <div class="custom-info">
-                        <h4>${r.name}</h4><span>Custo: ${r.cost} 🪙</span>
-                    </div>
-                    <button class="btn-del" onclick="removerRecompensaCustomizada('${r.id}')" title="Excluir">X</button>
-                </div>
-            `;
+            listaRecs.innerHTML += `<div class="custom-item"><div class="custom-info"><h4>${r.name}</h4><span>Custo: ${r.cost} 🪙</span></div><button class="btn-del" onclick="removerRecompensaCustomizada('${r.id}')">X</button></div>`;
         });
     }
 }
 
-// Funções de Missão Customizada
 function adicionarMissaoCustomizada() {
     const nome = document.getElementById('nova-missao-nome').value.trim();
+    if (!nome) return alert("Digite o nome da missão!");
     const tipo = document.getElementById('nova-missao-tipo').value;
     const turno = document.getElementById('nova-missao-turno').value;
-
-    if (!nome) return alert("Digite o nome da missão!");
-
     const novaMissao = { id: 'cm_' + Date.now(), title: nome, type: tipo, turn: turno };
     player.customMissions.push(novaMissao);
-    
-    if (tipo === 'essencial') {
-        player.dailyMissions[turno].push({...novaMissao, category: 'essencial', xp: 15, coin: 5, hard: false});
-    }
-
+    if (tipo === 'essencial') player.dailyMissions[turno].push({...novaMissao, category: 'essencial', xp: 15, coin: 5, hard: false});
     document.getElementById('nova-missao-nome').value = '';
-    updateUI();
-    renderConfigList();
+    updateUI(); renderConfigList();
 }
-
 function removerMissaoCustomizada(id) {
     if(confirm("Deseja apagar essa missão personalizada?")) {
         player.customMissions = player.customMissions.filter(m => m.id !== id);
-        Object.keys(player.dailyMissions).forEach(turno => {
-            player.dailyMissions[turno] = player.dailyMissions[turno].filter(m => m.id !== id);
-        });
-        updateUI();
-        renderConfigList();
+        Object.keys(player.dailyMissions).forEach(t => player.dailyMissions[t] = player.dailyMissions[t].filter(m => m.id !== id));
+        updateUI(); renderConfigList();
     }
 }
-
-// Funções de Recompensa Customizada
 function adicionarRecompensaCustomizada() {
     const nome = document.getElementById('nova-recompensa-nome').value.trim();
     const custo = parseInt(document.getElementById('nova-recompensa-custo').value);
-
-    if (!nome || isNaN(custo) || custo <= 0) return alert("Preencha um nome e um custo válido (apenas números)!");
-
-    const novaRec = { id: 'cr_' + Date.now(), name: nome, desc: "Personalizada", cost: custo };
-    player.customRewards.push(novaRec);
-    
-    document.getElementById('nova-recompensa-nome').value = '';
-    document.getElementById('nova-recompensa-custo').value = '';
-    updateUI();
-    renderConfigList();
+    if (!nome || isNaN(custo) || custo <= 0) return alert("Preencha dados válidos!");
+    player.customRewards.push({ id: 'cr_' + Date.now(), name: nome, desc: "Personalizada", cost: custo });
+    document.getElementById('nova-recompensa-nome').value = ''; document.getElementById('nova-recompensa-custo').value = '';
+    updateUI(); renderConfigList();
 }
-
 function removerRecompensaCustomizada(id) {
-    if(confirm("Deseja apagar essa recompensa da sua loja?")) {
+    if(confirm("Deseja apagar essa recompensa?")) {
         player.customRewards = player.customRewards.filter(r => r.id !== id);
-        updateUI();
-        renderConfigList();
+        updateUI(); renderConfigList();
     }
 }
 
