@@ -1,0 +1,155 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Courier New', Courier, monospace; /* Traz a vibe retrô/RPG */
+}
+
+body {
+    background-color: #121212;
+    color: #e0e0e0;
+    display: flex;
+    justify-content: center;
+}
+
+.app-container {
+    width: 100%;
+    max-width: 400px; /* Formato de celular */
+    min-height: 100vh;
+    background-color: #1a1a1a;
+    border-left: 2px solid #333;
+    border-right: 2px solid #333;
+    padding: 20px;
+}
+
+.status-board {
+    border: 2px solid #4caf50;
+    border-radius: 8px;
+    padding: 15px;
+    margin-bottom: 20px;
+    background: #0d1a0d;
+}
+
+.title {
+    text-align: center;
+    color: #4caf50;
+    font-size: 1.5rem;
+    margin-bottom: 15px;
+}
+
+.level-box {
+    display: flex;
+    justify-content: space-between;
+    font-weight: bold;
+    font-size: 1.2rem;
+    margin-bottom: 10px;
+}
+
+.streak {
+    color: #ff9800;
+}
+
+.xp-container {
+    margin-bottom: 10px;
+}
+
+.xp-bar {
+    width: 100%;
+    height: 12px;
+    background-color: #333;
+    border-radius: 6px;
+    overflow: hidden;
+    margin-bottom: 5px;
+}
+
+.xp-fill {
+    height: 100%;
+    background-color: #4caf50;
+    width: 0%;
+    transition: width 0.3s ease;
+}
+
+.xp-text {
+    font-size: 0.9rem;
+    color: #aaa;
+}
+
+.currency-box {
+    text-align: right;
+    color: #ffd700;
+    font-weight: bold;
+}
+
+.daily-quote {
+    text-align: center;
+    font-style: italic;
+    color: #888;
+    margin-bottom: 20px;
+}
+
+h2 {
+    font-size: 1.1rem;
+    color: #fff;
+    margin-top: 20px;
+    margin-bottom: 10px;
+    border-bottom: 1px solid #333;
+    padding-bottom: 5px;
+}
+
+.mission-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.mission-item {
+    background-color: #2a2a2a;
+    padding: 12px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.mission-item:active {
+    background-color: #333;
+}
+
+.mission-item input {
+    margin-right: 15px;
+    transform: scale(1.5);
+    accent-color: #4caf50;
+}
+
+.task-name {
+    flex-grow: 1;
+}
+
+.reward {
+    font-size: 0.8rem;
+    color: #4caf50;
+}
+
+/* Riscado quando concluído */
+input:checked + .task-name {
+    text-decoration: line-through;
+    color: #666;
+}
+input:checked ~ .reward {
+    color: #666;
+}
+
+.survival-btn {
+    width: 100%;
+    padding: 15px;
+    background-color: #ff4444;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-weight: bold;
+    font-size: 1rem;
+    margin-top: 30px;
+    cursor: pointer;
+    font-family: inherit;
+}
