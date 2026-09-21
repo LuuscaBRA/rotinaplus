@@ -25,7 +25,7 @@ const missions = {
 const achievements = [
     { id: "ach1", icon: "🥇", title: "PRIMEIRO PASSO", req: 1 },
     { id: "ach2", icon: "🧹", title: "SENHOR DA CASA", req: 10 },
-    { id: "ach3", icon: "🔥", title: "7 DIAS SEGUIDOS", req: 50 } // Fictício para MVP
+    { id: "ach3", icon: "🔥", title: "7 DIAS SEGUIDOS", req: 50 } 
 ];
 
 function getNextLevelXP() { return player.level * 500; }
@@ -41,7 +41,7 @@ function updateUI() {
     document.getElementById('xp-fill').style.width = `${Math.min(percentage, 100)}%`;
 
     localStorage.setItem('levelup_data', JSON.stringify(player));
-    renderAchievements(); // Atualiza as conquistas
+    renderAchievements(); 
 }
 
 function completeTask(checkbox, xpReward, cashReward) {
@@ -83,7 +83,6 @@ function renderAchievements() {
     const container = document.getElementById('achievements-grid');
     container.innerHTML = '';
     achievements.forEach(ach => {
-        // Lógica simples: se concluiu o número de tarefas necessário, desbloqueia
         const isUnlocked = (player.tasksCompleted || 0) >= ach.req; 
         const cssClass = isUnlocked ? "achievement-card unlocked" : "achievement-card";
         container.innerHTML += `
