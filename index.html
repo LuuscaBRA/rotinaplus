@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Level Up - Vida Real</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- CABEÇALHO / STATUS -->
+        <header class="status-board">
+            <h1 class="title">🎮 LEVEL UP</h1>
+            <div class="player-info">
+                <div class="level-box">
+                    <span class="level-text">NÍVEL <span id="level">1</span></span>
+                    <span class="streak">🔥 <span id="streak">4</span> DIAS</span>
+                </div>
+                <div class="xp-container">
+                    <div class="xp-bar">
+                        <div class="xp-fill" id="xp-fill"></div>
+                    </div>
+                    <span class="xp-text"><span id="xp">0</span> / <span id="xp-next">500</span> XP</span>
+                </div>
+                <div class="currency-box">
+                    🪙 <span id="lifecash">0</span> LIFECASH
+                </div>
+            </div>
+        </header>
+
+        <!-- MENSAGEM DO DIA -->
+        <div class="daily-quote">
+            "Só precisamos vencer o dia de hoje."
+        </div>
+
+        <!-- MISSÕES -->
+        <main class="missions-container">
+            <h2>⚡ MISSÕES ESSENCIAIS</h2>
+            <div class="mission-list" id="essential-missions">
+                <!-- Missões geradas via JavaScript -->
+            </div>
+
+            <h2>🎯 MISSÃO PRINCIPAL</h2>
+            <div class="mission-list" id="main-mission">
+                <label class="mission-item">
+                    <input type="checkbox" onchange="completeTask(this, 50, 20)">
+                    <span class="task-name">Avançar no projeto (Tarefa adiada)</span>
+                    <span class="reward">+50 XP | +20 🪙</span>
+                </label>
+            </div>
+        </main>
+        
+        <!-- MODO SOBREVIVÊNCIA -->
+        <button class="survival-btn" onclick="activateSurvivalMode()">
+            🆘 MODO DIA DIFÍCIL
+        </button>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
