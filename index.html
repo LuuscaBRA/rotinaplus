@@ -4,22 +4,19 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Level Up - Vida Real</title>
-    <!-- Adicionamos ?v=2 para forçar o celular a atualizar o visual -->
-    <link rel="stylesheet" href="style.css?v=2">
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div class="app-container" id="app">
         <!-- CABEÇALHO / PERFIL DO JOGADOR -->
         <header class="status-board">
             <div class="profile-section">
-                <!-- Mascote Fênix Fofinha -->
-                <div class="avatar-box" id="avatar-box">
-                    <span class="pet-icon" id="pet-icon">🥚</span>
+                <div class="avatar-box">
+                    <img src="https://api.dicebear.com/7.x/pixel-art/svg?seed=Jogador1" alt="Avatar do Jogador">
                 </div>
-                
                 <div class="player-info">
                     <h1 class="title">LEVEL UP</h1>
-                    <div class="level-text">NÍVEL <span id="level">1</span> <span class="pet-name" id="pet-name">(Ovinho)</span></div>
+                    <div class="level-text">NÍVEL <span id="level">1</span></div>
                     <div class="streak">🔥 <span id="streak">4</span> DIAS CONSECUTIVOS</div>
                 </div>
             </div>
@@ -52,6 +49,7 @@
 
         <!-- MISSÕES DIVIDIDAS POR TURNO -->
         <main class="missions-container">
+            
             <div class="time-section" id="morning-section">
                 <h2>🌅 MANHÃ</h2>
                 <div class="mission-list" id="morning-missions"></div>
@@ -66,16 +64,18 @@
                 <h2>🌙 NOITE</h2>
                 <div class="mission-list" id="evening-missions"></div>
             </div>
+
         </main>
         
         <!-- ABA DE CONQUISTAS -->
         <section class="achievements-section">
             <h2>🏆 CONQUISTAS</h2>
-            <div class="achievements-grid" id="achievements-grid"></div>
+            <div class="achievements-grid" id="achievements-grid">
+                <!-- Conquistas geradas via JS -->
+            </div>
         </section>
     </div>
 
-    <!-- Adicionamos ?v=2 para forçar o celular a baixar o novo Javascript -->
-    <script src="script.js?v=2"></script>
+    <script src="script.js"></script>
 </body>
 </html>
