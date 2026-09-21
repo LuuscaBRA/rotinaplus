@@ -7,53 +7,74 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="app-container">
-        <!-- CABEÇALHO / STATUS -->
+    <div class="app-container" id="app">
+        <!-- CABEÇALHO / PERFIL DO JOGADOR -->
         <header class="status-board">
-            <h1 class="title">🎮 LEVEL UP</h1>
-            <div class="player-info">
-                <div class="level-box">
-                    <span class="level-text">NÍVEL <span id="level">1</span></span>
-                    <span class="streak">🔥 <span id="streak">4</span> DIAS</span>
+            <div class="profile-section">
+                <div class="avatar-box">
+                    <!-- Usando uma API gratuita para gerar um avatar pixel art -->
+                    <img src="https://api.dicebear.com/7.x/pixel-art/svg?seed=Jogador1" alt="Avatar do Jogador">
                 </div>
-                <div class="xp-container">
-                    <div class="xp-bar">
-                        <div class="xp-fill" id="xp-fill"></div>
-                    </div>
-                    <span class="xp-text"><span id="xp">0</span> / <span id="xp-next">500</span> XP</span>
+                <div class="player-info">
+                    <h1 class="title">LEVEL UP</h1>
+                    <div class="level-text">NÍVEL <span id="level">1</span></div>
+                    <div class="streak">🔥 <span id="streak">4</span> DIAS CONSECUTIVOS</div>
                 </div>
-                <div class="currency-box">
-                    🪙 <span id="lifecash">0</span> LIFECASH
+            </div>
+            
+            <div class="xp-container">
+                <div class="xp-text"><span id="xp">0</span> / <span id="xp-next">500</span> XP</div>
+                <div class="xp-bar">
+                    <div class="xp-fill" id="xp-fill"></div>
                 </div>
+            </div>
+            
+            <div class="currency-box">
+                🪙 <span id="lifecash">0</span> LIFECASH
             </div>
         </header>
 
-        <!-- MENSAGEM DO DIA -->
-        <div class="daily-quote">
-            "Só precisamos vencer o dia de hoje."
+        <!-- MODO DIA DIFÍCIL (TOGGLE) -->
+        <div class="survival-toggle-container">
+            <span class="survival-label">🆘 Modo Dia Difícil</span>
+            <label class="switch">
+                <input type="checkbox" id="survival-toggle" onchange="toggleSurvivalMode()">
+                <span class="slider round"></span>
+            </label>
         </div>
 
-        <!-- MISSÕES -->
+        <!-- MENSAGEM DO DIA -->
+        <div class="daily-quote" id="daily-quote">
+            "Um passo de cada vez. Você consegue."
+        </div>
+
+        <!-- MISSÕES DIVIDIDAS POR TURNO -->
         <main class="missions-container">
-            <h2>⚡ MISSÕES ESSENCIAIS</h2>
-            <div class="mission-list" id="essential-missions">
-                <!-- Missões geradas via JavaScript -->
+            
+            <div class="time-section" id="morning-section">
+                <h2>🌅 MANHÃ</h2>
+                <div class="mission-list" id="morning-missions"></div>
             </div>
 
-            <h2>🎯 MISSÃO PRINCIPAL</h2>
-            <div class="mission-list" id="main-mission">
-                <label class="mission-item">
-                    <input type="checkbox" onchange="completeTask(this, 50, 20)">
-                    <span class="task-name">Avançar no projeto (Tarefa adiada)</span>
-                    <span class="reward">+50 XP | +20 🪙</span>
-                </label>
+            <div class="time-section" id="afternoon-section">
+                <h2>☀️ TARDE</h2>
+                <div class="mission-list" id="afternoon-missions"></div>
             </div>
+
+            <div class="time-section" id="evening-section">
+                <h2>🌙 NOITE</h2>
+                <div class="mission-list" id="evening-missions"></div>
+            </div>
+
         </main>
         
-        <!-- MODO SOBREVIVÊNCIA -->
-        <button class="survival-btn" onclick="activateSurvivalMode()">
-            🆘 MODO DIA DIFÍCIL
-        </button>
+        <!-- ABA DE CONQUISTAS -->
+        <section class="achievements-section">
+            <h2>🏆 CONQUISTAS</h2>
+            <div class="achievements-grid" id="achievements-grid">
+                <!-- Conquistas geradas via JS -->
+            </div>
+        </section>
     </div>
 
     <script src="script.js"></script>
