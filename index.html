@@ -8,13 +8,11 @@
 </head>
 <body>
     <div class="app-container">
-        <!-- CABEÇALHO -->
         <header class="top-header">
             <div class="logo">🎮 LEVEL UP</div>
-            <div class="date" id="current-date">seg., 21 de set.</div>
+            <div class="date" id="current-date">--</div>
         </header>
 
-        <!-- CARTÃO DE NÍVEL E STATUS -->
         <section class="level-card">
             <div class="level-header">
                 <h1 class="level-title">NÍVEL <span id="level">1</span> <span id="avatar">🥚</span></h1>
@@ -42,7 +40,6 @@
             </div>
         </section>
 
-        <!-- COMO VOCÊ ESTÁ HOJE? -->
         <section class="mood-section">
             <h2 class="section-title">Como você está hoje?</h2>
             <div class="mood-grid">
@@ -54,34 +51,29 @@
             </div>
         </section>
 
-        <!-- AVISO MODO LEVE -->
         <div class="warning-banner" id="warning-banner">
-            🧡 <strong>Sem cobrança.</strong> Em um dia difícil, ative o modo leve. Ele reduz as missões e mantém seu progresso.
+            🧡 <strong>Sem cobrança.</strong> Em um dia difícil, ative o modo abaixo. Ele reduz as missões e foca apenas na sua sobrevivência básica hoje.
         </div>
 
-        <!-- BOTÕES DE AÇÃO -->
         <div class="action-grid">
             <button class="action-btn" id="btn-modo-leve" onclick="toggleModoLeve()">
-                🔴 Ativar modo leve
+                🔴 Ativar dia difícil
             </button>
-            <button class="action-btn">
+            <button class="action-btn" onclick="abrirLoja()">
                 🎁 Recompensas
             </button>
         </div>
 
-        <!-- ABAS DE TURNOS -->
         <div class="tabs-container">
             <button class="tab active" id="tab-morning" onclick="switchTab('morning')">☀️ Manhã</button>
             <button class="tab" id="tab-afternoon" onclick="switchTab('afternoon')">⛅ Tarde</button>
             <button class="tab" id="tab-evening" onclick="switchTab('evening')">🌙 Noite</button>
         </div>
 
-        <!-- LISTA DE MISSÕES -->
         <div class="missions-list" id="missions-container">
             <!-- Gerado via JavaScript -->
         </div>
 
-        <!-- CONQUISTAS -->
         <section class="achievements-section">
             <h2 class="section-title">🏆 Conquistas</h2>
             <div class="achievements-list" id="achievements-container">
@@ -89,10 +81,24 @@
             </div>
         </section>
 
-        <!-- RODAPÉ -->
         <footer class="app-footer">
             Seu objetivo não é fazer tudo. É continuar cuidando de você.
         </footer>
+    </div>
+
+    <!-- MODAL DA LOJA DE RECOMPENSAS -->
+    <div id="loja-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>🎁 Loja Lifecash</h2>
+                <button class="close-btn" onclick="fecharLoja()">&times;</button>
+            </div>
+            <p class="saldo-loja">Seu saldo: <strong style="color: #ffd60a;"><span id="modal-saldo">0</span> 🪙</strong></p>
+            
+            <div class="loja-lista" id="loja-lista">
+                <!-- Itens da loja gerados via JS -->
+            </div>
+        </div>
     </div>
 
     <script src="script.js"></script>
