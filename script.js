@@ -1,115 +1,166 @@
-let player = { level: 1, xp: 0, lifecash: 0, streak: 4, tasksCompleted: 0 };
+// Estado do Jogador
+let player = {
+    level: 1, xp: 5, lifecash: 3, streak: 0,
+    modoLeve: false, currentTab: 'morning',
+    tasksCompleted: [] // IDs das tarefas já feitas
+};
 
-const savedData = localStorage.getItem('levelup_data');
-if (savedData) player = JSON.parse(savedData);
-
-// Missões divididas por turno e com dificuldade (hard: true = some no modo sobrevivência)
+// Missões idênticas às imagens
 const missions = {
     morning: [
-        { id: "m1", name: "🛏️ Levantar da cama", xp: 10, cash: 2, hard: false },
-        { id: "m2", name: "💧 Beber água", xp: 5, cash: 1, hard: false },
-        { id: "m3", name: "🧹 Arrumar o quarto", xp: 15, cash: 5, hard: true }
+        { id: "m1", title: "Levantar da cama", category: "essencial", xp: 10, coin: 5, hard: false },
+        { id: "m2", title: "Beber água", category: "essencial", xp: 5, coin: 3, hard: false },
+        { id: "m3", title: "Tomar banho e se arrumar", category: "essencial", xp: 10, coin: 5, hard: false },
+        { id: "m4", title: "Fazer uma refeição", category: "essencial", xp: 10, coin: 5, hard: false },
+        { id: "m5", title: "Definir a missão principal do dia", category: "organização", xp: 15, coin: 5, hard: true }
     ],
     afternoon: [
-        { id: "a1", name: "🍽️ Almoçar bem", xp: 10, cash: 5, hard: false },
-        { id: "a2", name: "🎯 Tarefa Principal", xp: 50, cash: 20, hard: true },
-        { id: "a3", name: "🏃 Exercício", xp: 30, cash: 15, hard: true }
+        { id: "a1", title: "Focar na missão principal", category: "trabalho/estudo", xp: 50, coin: 20, hard: true },
+        { id: "a2", title: "Beber água", category: "essencial", xp: 5, coin: 3, hard: false }
     ],
     evening: [
-        { id: "e1", name: "🚿 Tomar banho", xp: 10, cash: 5, hard: false },
-        { id: "e2", name: "🍽️ Jantar", xp: 10, cash: 5, hard: false },
-        { id: "e3", name: "❤️ Momento pessoal", xp: 20, cash: 10, hard: true }
+        { id: "e1", title: "Jantar", category: "essencial", xp: 10, coin: 5, hard: false },
+        { id: "e2", title: "Desconectar do celular", category: "saúde mental", xp: 20, coin: 10, hard: true }
     ]
 };
 
 const achievements = [
-    { id: "ach1", icon: "🥇", title: "PRIMEIRO PASSO", req: 1 },
-    { id: "ach2", icon: "🧹", title: "SENHOR DA CASA", req: 10 },
-    { id: "ach3", icon: "🔥", title: "7 DIAS SEGUIDOS", req: 50 } 
+    { id: "ac1", icon: "🌱", title: "Primeiro passo", req: 1 },
+    { id: "ac2", icon: "🚿", title: "Cuidando de mim", req: 5 },
+    { id: "ac3", icon: "🎯", title: "Foco no dia", req: 10 },
+    { id: "ac4", icon: "❤️", title: "Conexão", req: 15 },
+    { id: "ac5", icon: "🎨", title: "Vida fora das obrigações", req: 20 },
+    { id: "ac6", icon: "🔥", title: "Uma semana", req: 30 },
+    { id: "ac7", icon: "🆙", title: "Subindo de nível", req: 50 }
 ];
 
-function getNextLevelXP() { return player.level * 500; }
+// Evolução do Ovinho
+function getAvatar(level) {
+    if (level < 3) return "🥚"; // Nível 1 a 2
+    if (level < 5) return "🐣"; // Nível 3 a 4
+    if (level < 10) return "🐥"; // Nível 5 a 9
+    return "🦅"; // Nível 10+ (Fênix)
+}
 
 function updateUI() {
+    const nextXP = player.level * 100;
+    
     document.getElementById('level').innerText = player.level;
+    document.getElementById('avatar').innerText = getAvatar(player.level);
     document.getElementById('xp').innerText = player.xp;
-    document.getElementById('xp-next').innerText = getNextLevelXP();
+    document.getElementById('xp-next').innerText = nextXP;
     document.getElementById('lifecash').innerText = player.lifecash;
     document.getElementById('streak').innerText = player.streak;
 
-    const percentage = (player.xp / getNextLevelXP()) * 100;
-    document.getElementById('xp-fill').style.width = `${Math.min(percentage, 100)}%`;
+    const percentage = Math.min((player.xp / nextXP) * 100, 100);
+    document.getElementById('xp-fill').style.width = `${percentage}%`;
 
-    localStorage.setItem('levelup_data', JSON.stringify(player));
-    renderAchievements(); 
+    // Atualiza contagem de missões
+    const totalMissions = missions.morning.length + missions.afternoon.length + missions.evening.length;
+    document.getElementById('missions-completed').innerText = player.tasksCompleted.length;
+    document.getElementById('missions-total').innerText = totalMissions;
+
+    renderMissions();
+    renderAchievements();
 }
 
-function completeTask(checkbox, xpReward, cashReward) {
-    if (checkbox.checked) {
-        player.xp += xpReward;
-        player.lifecash += cashReward;
-        player.tasksCompleted = (player.tasksCompleted || 0) + 1;
+function toggleTask(id, xp, coin) {
+    const index = player.tasksCompleted.indexOf(id);
+    if (index === -1) {
+        // Concluir tarefa
+        player.tasksCompleted.push(id);
+        player.xp += xp;
+        player.lifecash += coin;
 
-        if (player.xp >= getNextLevelXP()) {
-            player.xp -= getNextLevelXP();
-            player.level += 1;
-            alert(`🎉 NÍVEL UP! Você alcançou o Nível ${player.level}!`);
+        // Subir de nível
+        const nextXP = player.level * 100;
+        if (player.xp >= nextXP) {
+            player.xp -= nextXP;
+            player.level++;
+            alert(`🎉 Você subiu para o Nível ${player.level}!`);
         }
     } else {
-        player.xp -= xpReward;
-        player.lifecash -= cashReward;
-        player.tasksCompleted -= 1;
-        if(player.xp < 0) player.xp = 0; 
+        // Desmarcar tarefa
+        player.tasksCompleted.splice(index, 1);
+        player.xp = Math.max(0, player.xp - xp);
+        player.lifecash = Math.max(0, player.lifecash - coin);
     }
     updateUI();
 }
 
-function renderMissionList(missionArray, containerId) {
-    const container = document.getElementById(containerId);
+function renderMissions() {
+    const container = document.getElementById('missions-container');
     container.innerHTML = '';
-    missionArray.forEach(mission => {
-        const cssClass = mission.hard ? "mission-item hard-mission" : "mission-item";
-        container.innerHTML += `
-            <label class="${cssClass}">
-                <input type="checkbox" onchange="completeTask(this, ${mission.xp}, ${mission.cash})">
-                <span class="task-name">${mission.name}</span>
-                <span class="reward">+${mission.xp} XP</span>
-            </label>
-        `;
-    });
-}
+    const currentMissions = missions[player.currentTab];
 
-function renderAchievements() {
-    const container = document.getElementById('achievements-grid');
-    container.innerHTML = '';
-    achievements.forEach(ach => {
-        const isUnlocked = (player.tasksCompleted || 0) >= ach.req; 
-        const cssClass = isUnlocked ? "achievement-card unlocked" : "achievement-card";
+    currentMissions.forEach(m => {
+        const isDone = player.tasksCompleted.includes(m.id);
+        const cardClass = `mission-card ${isDone ? 'completed' : ''} ${m.hard ? 'hard' : ''}`;
+        
         container.innerHTML += `
-            <div class="${cssClass}">
-                <div class="ach-icon">${ach.icon}</div>
-                <div class="ach-title">${ach.title}</div>
+            <div class="${cardClass}" onclick="toggleTask('${m.id}', ${m.xp}, ${m.coin})">
+                <div class="checkbox-wrapper"><div class="custom-checkbox"></div></div>
+                <div class="mission-info">
+                    <div class="mission-title">${m.title}</div>
+                    <div class="mission-category">${m.category}</div>
+                </div>
+                <div class="mission-rewards">
+                    <div class="reward-xp">+${m.xp} XP</div>
+                    <div class="reward-coin">+${m.coin} 🪙</div>
+                </div>
             </div>
         `;
     });
 }
 
-function toggleSurvivalMode() {
-    const toggle = document.getElementById('survival-toggle');
-    const app = document.getElementById('app');
-    const quote = document.getElementById('daily-quote');
+function renderAchievements() {
+    const container = document.getElementById('achievements-container');
+    container.innerHTML = '';
+    
+    achievements.forEach(ach => {
+        const isUnlocked = player.tasksCompleted.length >= ach.req;
+        container.innerHTML += `
+            <div class="ach-card ${isUnlocked ? 'unlocked' : ''}">
+                <div class="ach-icon">${ach.icon}</div>
+                <div class="ach-info">
+                    <div class="ach-title">${ach.title}</div>
+                    <div class="ach-status">${isUnlocked ? 'Desbloqueada' : 'Ainda bloqueada'}</div>
+                </div>
+            </div>
+        `;
+    });
+}
 
-    if (toggle.checked) {
-        app.classList.add('survival-active');
-        quote.innerText = "Modo Sobrevivência: Faça apenas o básico. Respire. Tudo bem descansar.";
+function switchTab(tabId) {
+    player.currentTab = tabId;
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.getElementById(`tab-${tabId}`).classList.add('active');
+    renderMissions();
+}
+
+function toggleModoLeve() {
+    player.modoLeve = !player.modoLeve;
+    const btn = document.getElementById('btn-modo-leve');
+    
+    if (player.modoLeve) {
+        document.body.classList.add('modo-leve-ativo');
+        btn.innerHTML = "🟢 Modo leve ativado";
+        btn.style.borderColor = "#a3e6b5";
     } else {
-        app.classList.remove('survival-active');
-        quote.innerText = "Um passo de cada vez. Você consegue.";
+        document.body.classList.remove('modo-leve-ativo');
+        btn.innerHTML = "🔴 Ativar modo leve";
+        btn.style.borderColor = "transparent";
     }
 }
 
-// Inicializa tudo
-renderMissionList(missions.morning, 'morning-missions');
-renderMissionList(missions.afternoon, 'afternoon-missions');
-renderMissionList(missions.evening, 'evening-missions');
+function selectMood(btn) {
+    document.querySelectorAll('.mood-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+}
+
+// Configurar a Data atual
+const dateOptions = { weekday: 'short', day: 'numeric', month: 'short' };
+document.getElementById('current-date').innerText = new Date().toLocaleDateString('pt-BR', dateOptions).replace('.', '');
+
+// Iniciar app
 updateUI();
